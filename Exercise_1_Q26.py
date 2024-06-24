@@ -1,21 +1,22 @@
 import numpy as np
+
 import matplotlib.pyplot as plt
 
-# Function to convert a digit to its 4-bit binary representation
+# convert a digit to its 4-bit binary representation
 def digit_to_bits(digit):
     if digit == 0:
         return [0, 1, 0, 1]
-    bits = [int(x) for x in format(digit, '04b')]
+    bits = [int(x) for x in format(digit, '04b')] # 04b means 4 bits with leading zeros
     return bits
 
-# Function to add even parity bit
+# add even parity bit
 def add_even_parity(bits):
     parity = sum(bits) % 2 # if bit is even, parity is 0; if bit is odd, parity is 1
     return bits + [parity]
 
-# Function to generate sine wave based on the bit value
+# generate sine wave based on the bit value
 def generate_wave(bit, duration, freq, sample_rate):
-    t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+    t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False) # generate time values
     if bit == 1:
         return np.sin(2 * np.pi * freq * t)
     else:
@@ -27,14 +28,14 @@ last_two_digits = student_id % 100
 
 # Convert each digit to bits and add parity bit
 digits = [int(x) for x in str(last_two_digits)]
-bit_sets = [add_even_parity(digit_to_bits(digit)) for digit in digits]
+bit_sets = [add_even_parity(digit_to_bits(digit)) for digit in digits] # convert to bits and add parity bit in one line
 
 # Parameters
 duration = 0.25  # period is 0.25 seconds
 freq = 4  # 4 Hz
 sample_rate = 1000  # samples per second
 
-# Plotting the bit sets
+# Plotting
 plt.figure(figsize=(12, 6))
 current_time = 0
 
