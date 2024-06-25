@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 student_ID = int(input('Enter your student ID: '))
 two_digit = student_ID % 100
 freq = [int(x) for x in str(two_digit)]
+freq = [5 if x == 0 else x for x in freq] #if any number in last two digits is 0, then replace it with 5
 
 # Generate time values from 0 to 5 seconds
 t = np.linspace(0, 5, 500)
