@@ -36,6 +36,8 @@ else:
     print("Error: Last two digits contain non-numeric characters.")
     last_two_digits = []
 
+print("last two digits of student ID:", last_two_digits)
+
 # Convert each digit to bits and add parity bit
 digits = [int(x) for x in last_two_digits]
 bit_sets = [add_even_parity(digit_to_bits(digit)) for digit in digits] # convert to bits and add parity bit in one line
