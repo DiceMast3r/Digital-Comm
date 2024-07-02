@@ -23,11 +23,21 @@ def generate_wave(bit, duration, freq, sample_rate):
         return -np.sin(2 * np.pi * freq * t)
 
 # Get the last two digits of the student ID
-student_id = int(input('Enter your student ID: '))
-last_two_digits = student_id % 100
+student_id = input('Enter your student ID: ')
+
+# Assuming student_id is already defined
+student_id_str = str(student_id)  # Convert student ID to string
+last_two_digits_str = student_id_str[-2:]  # Get the last two characters
+
+# Validate and convert
+if last_two_digits_str.isdigit():
+    last_two_digits = [int(x) for x in last_two_digits_str]
+else:
+    print("Error: Last two digits contain non-numeric characters.")
+    last_two_digits = []
 
 # Convert each digit to bits and add parity bit
-digits = [int(x) for x in str(last_two_digits)]
+digits = [int(x) for x in last_two_digits]
 bit_sets = [add_even_parity(digit_to_bits(digit)) for digit in digits] # convert to bits and add parity bit in one line
 
 # Parameters
