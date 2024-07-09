@@ -22,13 +22,6 @@ m_fft = fft_pack.fft(m)
 abs_m_fft = np.abs(m_fft)
 f = np.linspace(0, Nsamp, Nbits * Nsamp)
 
-print(len(a))
-print(len(f))
-
-#print("Data bits: ", a)
-#print("Modulated signal: ", m)
-# Assuming the previous code snippet has been executed
-
 # 3. Create a time axis
 t = np.arange(0, Nbits * Nsamp)
 
