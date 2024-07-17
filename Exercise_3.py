@@ -8,7 +8,7 @@ def compute_prob(x, a, b): #compute the probability of x in the range [a, b]
     return  P
 
 
-N = 10000 * 2
+N = 1000
 n_normal = np.random.normal(0, 2, size=N)
 
 
@@ -16,6 +16,10 @@ print("Variance = ", np.var(n_normal))
 print("Mean = ", np.mean(n_normal))
 
 P = sum((n_normal >= -1.5) & (n_normal <= 1.5)) / N # P(-1.5 <= n_normal <= 1.5)
+P_2 = sum(n_normal > 0) / N # P(n_normal < 0)
+
+print("P(-1.5 <= n_normal <= 1.5) = ", P)
+print("P(n_normal < 0) = ", P_2)
 print("P(-1.5 <= n_normal <= 1.5) = ", compute_prob(n_normal, -1.5, 1.5))
 
 plt.figure(figsize=(10, 2))
