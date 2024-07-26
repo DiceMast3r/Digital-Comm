@@ -1,7 +1,10 @@
 /.vscode
 /.HW_1/Plot
+/.C_KMUTNB
 
 *.pdf
 *.jpg
 *.png
+*.exe
 
+C_KMUTNB/test.c
