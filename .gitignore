@@ -6,5 +6,6 @@
 *.jpg
 *.png
 *.exe
+*.docx
 
 C_KMUTNB/test.c
