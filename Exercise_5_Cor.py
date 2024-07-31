@@ -61,6 +61,7 @@ for i in range(Nbits):
 print(np.shape(correlation))
 print(np.arange(Nbits))
 plot.figure(figsize=(10,6))
+plot.plot(correlation)
 plot.stem(np.arange(Nbits)*Nsamp + Nsamp - 1, z, '-.')
 plot.title('Sampled Signal')
 

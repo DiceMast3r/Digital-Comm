@@ -1,4 +1,3 @@
-from matplotlib import figure
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plot
@@ -16,7 +15,7 @@ plot.title('Randomly Generated Bits')
 
 plot.figure(figsize=(10,6))
 plot.stem(b)
-plot.title('Randomly Generated Bits with NRZ-L Encoding')
+plot.title('Randomly Generated Bits with Encoding')
 
 # Generate NRZ-L Modulated signals
 x_t=[]
@@ -66,6 +65,7 @@ for i in range(Nbits):
 print(np.shape(z_t))
 print(np.arange(Nbits))
 plot.figure(figsize=(10,6))
+plot.plot(z_t)
 plot.stem(np.arange(Nbits)*Nsamp+9, z, '-.')
 plot.title('Sampled Signal')
 
@@ -81,7 +81,7 @@ for zdata in z:
 err_num = sum((a!=a_hat))
 print('err_num = ', err_num)
 
-#Calculate Eb/N0
+# Calculate Eb/N0
 Eb = np.mean(b**2)
 N0 = 2 * (sigma**2)
 EbN0 = 10*math.log10(Eb/N0)
@@ -91,3 +91,5 @@ print('Eb/N0 = {0} dB'.format(EbN0))
 plot.figure(figsize=(10,6))
 plot.stem(a_hat)
 plot.title('Decoded Signal')
+
+plot.show()
