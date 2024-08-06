@@ -63,10 +63,19 @@ plot.title('Received Signal')'''
 s_NRZL = np.array([1]*Nsamp) #for NRZ-L
 s_Manchester = np.array([1,1,1,1,1,-1,-1,-1,-1,1]) #for Manchester
 z = []
-for i in range(Nbits):
-    z_t = np.multiply(r_t[i*Nsamp:(i+1)*Nsamp], s_NRZL)
-    z_t_out = sum(z_t)
-    z.append(z_t_out)
+if mode == 'N':
+    for i in range(Nbits):
+        z_t = np.multiply(r_t[i*Nsamp:(i+1)*Nsamp], s_NRZL)
+        z_t_out = sum(z_t)
+        z.append(z_t_out)
+elif mode == 'M':
+    for i in range(Nbits):
+        z_t = np.multiply(r_t[i*Nsamp:(i+1)*Nsamp], s_Manchester)
+        z_t_out = sum(z_t)
+        z.append(z_t_out)
+else:
+    print('Invalid mode')
+    exit()
     
 print("Mode: " + mode)
 plot.figure(figsize=(10,6))
