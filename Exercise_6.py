@@ -44,7 +44,7 @@ plot.title('NRZ-L Modulated Signal')'''
 
 # Generate AWGN
 mu = 0
-sigma = 0.65
+sigma = 6.65
 N0 = 2 * (sigma**2)
 
 snr_m = 10 * math.log10(Eb/N0)
@@ -98,9 +98,13 @@ for zdata in z:
 plot.stem(a_hat)
 plot.title('Decoded Signal')'''
 
-# Calculate the bit error rate
+# Calculate error
 err_num = sum((a!=a_hat))
 print('err_num = ', err_num)
+
+# Calculate BER
+BER = err_num/Nbits
+print('BER = {0:.5f}'.format(BER))
 
 # Calculate Eb/N0
 EbN0 = 10 * math.log10(Eb/N0)
