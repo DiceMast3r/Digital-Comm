@@ -9,10 +9,6 @@ a = np.random.randint(0,2,Nbits)
 b = 2 * a - 1
 Eb = 10
 
-plot.figure(figsize=(10,6))
-plot.stem(b)
-plot.title('Transmitted Signal (Binary)')
-
 mode = input('Enter the mode (Manchester(M) , NRZ-L(N), Unipolar RZ (U), Polar RZ (P)): ')
 
 # Generate NRZ-L or Manchester Modulated signals
