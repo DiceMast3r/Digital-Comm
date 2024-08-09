@@ -8,6 +8,7 @@ np.random.seed(30)
 a = np.random.randint(0,2,Nbits)
 b = 2 * a - 1
 Eb = 10
+ea = 25
 
 mode = input('Enter the mode (Manchester(M) , NRZ-L(N): ')
 
