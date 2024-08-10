@@ -9,7 +9,7 @@ a = np.random.randint(0,2,Nbits)
 b = 2 * a - 1
 Eb = 10
 
-mode = input('Enter the mode (Manchester(M) , NRZ-L(N): ')
+mode = input('Enter the mode (Manchester(M) , NRZ-L(N), Unipolar RZ (U), Polar RZ (P)): ')
 
 # Generate NRZ-L or Manchester Modulated signals
 x_t = []
@@ -25,6 +25,18 @@ elif mode == 'M':
             x_t.extend([1] * (Nsamp // 2) + [-1] * (Nsamp // 2))
         else:
             x_t.extend([-1] * (Nsamp // 2) + [1] * (Nsamp // 2))
+elif mode == 'U':
+    for i in range(Nbits):
+        if a[i] == 1:
+            x_t.extend([1] * Nsamp)
+        else:
+            x_t.extend([0] * Nsamp)
+elif mode == 'P':
+    for i in range(Nbits):
+        if a[i] == 1:
+            x_t.extend([1] * (Nsamp // 2) + [0] * (Nsamp // 2))
+        else:
+            x_t.extend([-1] * (Nsamp // 2) + [0] * (Nsamp // 2))
 else:
     print('Invalid mode')
     exit()
@@ -59,6 +71,16 @@ if mode == 'N':
 elif mode == 'M':
     for i in range(Nbits):
         z_t = np.multiply(r_t[i * Nsamp:(i+1) * Nsamp], s_Manchester)
+        z_t_out = sum(z_t)
+        z.append(z_t_out)
+elif mode == 'U':
+    for i in range(Nbits):
+        z_t = np.multiply(r_t[i * Nsamp:(i+1) * Nsamp], s_UNRZ)
+        z_t_out = sum(z_t)
+        z.append(z_t_out)
+elif mode == 'P':
+    for i in range(Nbits):
+        z_t = np.multiply(r_t[i * Nsamp:(i+1) * Nsamp], s_PRZ)
         z_t_out = sum(z_t)
         z.append(z_t_out)
 else:
