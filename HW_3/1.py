@@ -27,6 +27,18 @@ def calculate_ber(mode, sigma):
                 x_t.extend([1] * (Nsamp // 2) + [-1] * (Nsamp // 2))
             else:
                 x_t.extend([-1] * (Nsamp // 2) + [1] * (Nsamp // 2))
+    elif mode == 'U':
+        for i in range(Nbits):
+            if a[i] == 1:
+                x_t.extend([1] * Nsamp)
+            else:
+                x_t.extend([0] * Nsamp)
+    elif mode == 'P':
+        for i in range(Nbits):
+            if a[i] == 1:
+                x_t.extend([1] * (Nsamp // 2) + [0] * (Nsamp // 2))
+            else:
+                x_t.extend([-1] * (Nsamp // 2) + [0] * (Nsamp // 2))
     else:
         raise ValueError('Invalid mode')
 
@@ -40,7 +52,10 @@ def calculate_ber(mode, sigma):
     # Correlator
     s_NRZL = np.array([1] * Nsamp)  # for NRZ-L
     s_Manchester = np.array([1, 1, 1, 1, 1, -1, -1, -1, -1, 1])  # for Manchester
+    s_PRZ = np.array([1,0,1,0,1,0,1,0,1,0]) #for Polar RZ
+    s_UNRZ = np.array([1,0,0,0,0,0,0,0,0,0]) #for Unipolar NRZ
     z = []
+    
     if mode == 'N':
         for i in range(Nbits):
             z_t = np.multiply(r_t[i * Nsamp:(i + 1) * Nsamp], s_NRZL)
@@ -49,6 +64,16 @@ def calculate_ber(mode, sigma):
     elif mode == 'M':
         for i in range(Nbits):
             z_t = np.multiply(r_t[i * Nsamp:(i + 1) * Nsamp], s_Manchester)
+            z_t_out = sum(z_t)
+            z.append(z_t_out)
+    elif mode == 'U':
+        for i in range(Nbits):
+            z_t = np.multiply(r_t[i * Nsamp:(i+1) * Nsamp], s_UNRZ)
+            z_t_out = sum(z_t)
+            z.append(z_t_out)
+    elif mode == 'P':
+        for i in range(Nbits):
+            z_t = np.multiply(r_t[i * Nsamp:(i+1) * Nsamp], s_PRZ)
             z_t_out = sum(z_t)
             z.append(z_t_out)
     else:
@@ -67,11 +92,13 @@ def calculate_ber(mode, sigma):
 # Calculate BER for each SNR value
 BER_NRZL = [calculate_ber('N', sigma) for sigma in sigma_log]
 BER_Manchester = [calculate_ber('M', sigma) for sigma in sigma_log]
+BER_PolarRZ = [calculate_ber('P', sigma) for sigma in sigma_log]
 
 # Plot the results
 plot.figure(figsize=(10, 6))
 plot.semilogy(SNRdB_log, BER_NRZL, marker='o', label='NRZ-L')
 plot.semilogy(SNRdB_log, BER_Manchester, marker='x', label='Manchester')
+plot.semilogy(SNRdB_log, BER_PolarRZ, marker='s', label='Polar RZ')
 plot.xlabel('SNR (dB)')
 plot.ylabel('Bit Error Rate (BER)')
 plot.legend()
