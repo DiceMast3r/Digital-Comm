@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plot
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 # Start the timer
 start_time = time.time()
@@ -92,18 +93,27 @@ def calculate_ber(mode, sigma):
     ber = err_num / Nbits
     return ber
 
-# Calculate BER for each SNR value
-a_BER_NRZL = [calculate_ber('N', sigma) for sigma in sigma_log]
-BER_Manchester = [calculate_ber('M', sigma) for sigma in sigma_log]
-BER_PolarRZ = [calculate_ber('P', sigma) for sigma in sigma_log]
-BER_UnipolarNRZ = [calculate_ber('U', sigma) for sigma in sigma_log]
+def calculate_ber_for_mode(mode):
+    return [calculate_ber(mode, sigma) for sigma in sigma_log]
+
+# Use ThreadPoolExecutor to calculate BER in parallel
+with ThreadPoolExecutor() as executor:
+    future_nrzl = executor.submit(calculate_ber_for_mode, 'N')
+    future_manchester = executor.submit(calculate_ber_for_mode, 'M')
+    future_polarrz = executor.submit(calculate_ber_for_mode, 'P')
+    future_unipolarnrz = executor.submit(calculate_ber_for_mode, 'U')
+
+    a_BER_NRZL = future_nrzl.result()
+    BER_Manchester = future_manchester.result()
+    BER_PolarRZ = future_polarrz.result()
+    BER_UnipolarNRZ = future_unipolarnrz.result()
 
 # End the timer
 end_time = time.time()
 
 # Calculate and print the elapsed time
 elapsed_time = end_time - start_time
-print("Program execution time for {0} bits: {1:.3f} seconds".format(Nbits, elapsed_time))
+print("Program execution time for {0} bits (Parallel): {1:.3f} seconds".format(Nbits, elapsed_time))
 
 # Plot the results
 plot.figure(figsize=(10, 6))
