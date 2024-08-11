@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 # Start the timer
 start_time = time.time()
 
-Nbits = 150000
+Nbits = 250000
 Nsamp = 10
 np.random.seed(30)
 a = np.random.randint(0, 2, Nbits)
