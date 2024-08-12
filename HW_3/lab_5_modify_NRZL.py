@@ -7,13 +7,6 @@ Nsamp = 10
 np.random.seed(30)
 a = np.random.randint(0,2,Nbits)
 b = 2*a - 1
-plot.figure(figsize=(10,6))
-plot.stem(a)
-plot.title('Randomly Generated Bits')
-
-plot.figure(figsize=(10,6))
-plot.stem(b)
-plot.title('Randomly Generated Bits with Encoding')
 
 # Generate NRZ-L Modulated signals
 x_t=[]
@@ -31,46 +24,50 @@ plot.title('NRZ-L Modulated Signal')
 mu = 0
 sigma = 0.2
 n_t = np.random.normal(mu, sigma, Nbits*Nsamp )
-print(np.shape(n_t))
-plot.figure(figsize=(10,6))
-plot.plot(n_t)
-plot.title('AWGN Signal')
 
 # received signals
 r_t = x_t + n_t
+
+# Matched filters (MF)
+s_NRZL_1 = np.array([1]*Nsamp)
+s_NRZL_2 = np.array([-1]*Nsamp)
+
+z_t_1 = np.convolve(r_t, s_NRZL_1)
+z_t_2 = np.convolve(r_t, s_NRZL_2)
+"""
 plot.figure(figsize=(10,6))
-plot.plot(r_t)
-plot.title('Received Signal')
+plot.plot(z_t_1)
+plot.title('Matched Filter 1 Output')
 
-# Matched filter (MF)
-
-s_NRZL = np.array([1,1,1,1,1,1,1,1,1,1])
-#s_Manchester = ....
-
-z_t = np.convolve(r_t, s_NRZL)
-#z_t = np.convolve(r,s_Manchester)
 plot.figure(figsize=(10,6))
-plot.plot(z_t)
-plot.title('Matched Filter Output')
+plot.plot(z_t_2)
+plot.title('Matched Filter 2 Output')"""
 
 # A/D
-
-z = [ ]
+z_1 = [ ]
+z_2 = [ ]
 for i in range(Nbits):
-  zz = z_t[i*Nsamp+9]
-  z.append(zz)
+  zz_1 = z_t_1[i*Nsamp+Nsamp-1]
+  zz_2 = z_t_2[i*Nsamp+Nsamp-1]
+  z_1.append(zz_1)
+  z_2.append(zz_2)
 
-print(np.shape(z_t))
+print(np.shape(z_t_1))
 print(np.arange(Nbits))
 plot.figure(figsize=(10,6))
-plot.plot(z_t)
-plot.stem(np.arange(Nbits)*Nsamp+9, z, '-.')
-plot.title('Sampled Signal')
+plot.plot(z_t_1)
+plot.stem(np.arange(Nbits)*Nsamp+Nsamp-1, z_1, '-.')
+plot.title('Sampled Signal from Matched Filter 1')
+
+plot.figure(figsize=(10,6))
+plot.plot(z_t_2)
+plot.stem(np.arange(Nbits)*Nsamp+Nsamp-1, z_2, '-.')
+plot.title('Sampled Signal from Matched Filter 2')
 
 # Make decision, compare z with 0
 a_hat = [ ]
-for zdata in z:
-  if (zdata > 0):
+for zz_1, zz_2 in zip(z_1, z_2):
+  if (zz_1 > zz_2):
     a_hat.append(1)
   else:
     a_hat.append(0)
@@ -84,7 +81,6 @@ Eb = np.mean(b**2)
 N0 = 2 * (sigma**2)
 EbN0 = 10*math.log10(Eb/N0)
 print('Eb/N0 = {0} dB'.format(EbN0))
-
 
 plot.figure(figsize=(10,6))
 plot.stem(a_hat)

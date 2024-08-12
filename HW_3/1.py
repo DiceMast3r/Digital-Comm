@@ -56,7 +56,7 @@ def calculate_ber(mode, sigma):
     s_NRZL = np.array([1] * Nsamp)  # for NRZ-L
     s_Manchester = np.array([1, 1, 1, 1, 1, -1, -1, -1, -1, -1])  # for Manchester
     s_PRZ = np.array([1,0,1,0,1,0,1,0,1,0]) #for Polar RZ
-    s_URZ = np.array([1,1,1,1,1,1,1,0,0,0]) #for Unipolar NRZ    
+    s_URZ = np.array([1,1,1,1,1,0,0,0,0,0]) #for Unipolar RZ    
     z = []
     
     if mode == 'N':
@@ -110,10 +110,10 @@ plot.figure(figsize=(10, 6))
 plot.semilogy(SNRdB_log, a_BER_NRZL, marker='o', label='NRZ-L')
 plot.semilogy(SNRdB_log, BER_Manchester, marker='x', label='Manchester')
 plot.semilogy(SNRdB_log, BER_PolarRZ, marker='s', label='Polar RZ')
-plot.semilogy(SNRdB_log, BER_UnipolarNRZ, marker='d', label='Unipolar NRZ')
+plot.semilogy(SNRdB_log, BER_UnipolarNRZ, marker='d', label='Unipolar RZ')
 plot.xlabel('SNR (dB)')
 plot.ylabel('Bit Error Rate (BER)')
 plot.legend()
 plot.grid(True, which='both')
-plot.title('BER vs. SNR for NRZ-L and Manchester Code')
+plot.title('BER vs. SNR for Different Line Code')
 plot.show()
