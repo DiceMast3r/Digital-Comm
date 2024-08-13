@@ -5,7 +5,7 @@ import time
 # Start the timer
 start_time = time.time()
 
-Nbits = 100000
+Nbits = 200000
 Nsamp = 10
 np.random.seed(30)
 a = np.random.randint(0, 2, Nbits)
@@ -13,7 +13,7 @@ b = 2 * a - 1
 Eb = 10
 
 SNRdB_log = np.array([1.6, 2.6, 3.6, 4.6, 5.6, 6.6, 7.6, 8.6, 9.6])
-sigma_log = [(1 / 2) * (10) * (10 ** (-snr / 10)) for snr in SNRdB_log]
+sigma_log = [np.sqrt((1 / 2) * (10) * (10 ** (-snr / 10))) for snr in SNRdB_log]
 
 def calculate_ber(mode, sigma):
     # Generate NRZ-L or Manchester Modulated signals
@@ -109,11 +109,39 @@ print("Program execution time for {0} bits: {1:.3f} seconds".format(Nbits, elaps
 plot.figure(figsize=(10, 6))
 plot.semilogy(SNRdB_log, a_BER_NRZL, marker='o', label='NRZ-L')
 plot.semilogy(SNRdB_log, BER_Manchester, marker='x', label='Manchester')
+plot.xlabel('SNR (dB)')
+plot.ylabel('Bit Error Rate (BER)')
+plot.legend()
+plot.grid(True, which='both')
+plot.title('BER vs. SNR for NRZ-L and Manchester')
+
+plot.figure(figsize=(10, 6))
+plot.semilogy(SNRdB_log, a_BER_NRZL, marker='o', label='NRZ-L')
 plot.semilogy(SNRdB_log, BER_PolarRZ, marker='s', label='Polar RZ')
+plot.xlabel('SNR (dB)')
+plot.ylabel('Bit Error Rate (BER)')
+plot.legend()
+plot.grid(True, which='both')
+plot.title('BER vs. SNR for NRZ-L and Polar RZ')
+
+plot.figure(figsize=(10, 6))
+plot.semilogy(SNRdB_log, a_BER_NRZL, marker='o', label='NRZ-L')
 plot.semilogy(SNRdB_log, BER_UnipolarNRZ, marker='d', label='Unipolar RZ')
 plot.xlabel('SNR (dB)')
 plot.ylabel('Bit Error Rate (BER)')
 plot.legend()
 plot.grid(True, which='both')
+plot.title('BER vs. SNR for NRZ-L and Unipolar RZ')
+
+plot.figure(figsize=(10, 6))
+plot.semilogy(SNRdB_log, a_BER_NRZL, marker='o', label='NRZ-L')
+plot.semilogy(SNRdB_log, BER_Manchester, marker='x', label='Manchester')
+plot.semilogy(SNRdB_log, BER_UnipolarNRZ, marker='d', label='Unipolar RZ')
+plot.semilogy(SNRdB_log, BER_PolarRZ, marker='s', label='Polar RZ')
+plot.xlabel('SNR (dB)')
+plot.ylabel('Bit Error Rate (BER)')
+plot.legend()
+plot.grid(True, which='both')
 plot.title('BER vs. SNR for Different Line Code')
+
 plot.show()
