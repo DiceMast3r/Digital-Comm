@@ -1,5 +1,4 @@
 from sgp4.api import Satrec, jday
-from sgp4.api import accelerated
 import numpy as np
 
 # Constants
@@ -54,40 +53,54 @@ def ecef_to_latlon(r_ecef):
     lon = np.degrees(lon)
     return lat, lon, alt
 
-# Example TLE data
-line0 = "GPS BIIF-9  (PRN 26)"
-line1 = "1 40534U 15013A   24194.06691307  .00000033  00000+0  00000+0 0  9992"
-line2 = "2 40534  53.3359 233.3662 0088230  29.7523 330.8139  2.00564147 68101"
+def read_tle_file(filename):
+    """
+    Read TLE data from a file and return a list of satellite objects.
+    """
+    satellites = []
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+        for i in range(0, len(lines), 3):
+            line0 = lines[i].strip()
+            line1 = lines[i+1].strip()
+            line2 = lines[i+2].strip()
+            satellite = Satrec.twoline2rv(line1, line2)
+            satellites.append((line0, satellite))
+    return satellites
 
-# Initialize satellite object
-satellite = Satrec.twoline2rv(line1, line2)
+def compute_positions(satellites, year, month, day, hour, minute, second):
+    """
+    Compute the position of each satellite at the given date and time.
+    """
+    jd, fr = jday(year, month, day, hour, minute, second)
+    results = []
+    for name, satellite in satellites:
+        e, r, v = satellite.sgp4(jd, fr)
+        if e == 0:
+            r_ecef = eci_to_ecef(r, jd, fr)
+            lat, lon, alt = ecef_to_latlon(r_ecef)
+            results.append((name, lat, lon, alt))
+        else:
+            results.append((name, None, None, None))
+    return results
 
-# Define the date and time for the calculation (e.g., Julian Date)
+# Example usage
+filename = 'TLE.txt'
 year = 2024
-month = 7
-day = 12
-hour = 14
-minute = 15
+month = 8
+day = 13
+hour = 15
+minute = 40
 second = 0
-jd, fr = jday(year, month, day, hour, minute, second)
 
-# Calculate position and velocity
-e, r, v = satellite.sgp4(jd, fr)
+satellites = read_tle_file(filename)
+positions = compute_positions(satellites, year, month, day, hour, minute, second)
 
-if e == 0:
-    # Convert ECI to ECEF
-    r_ecef = eci_to_ecef(r, jd, fr)
-
-    # Convert ECEF to latitude, longitude, and altitude
-    lat, lon, alt = ecef_to_latlon(r_ecef)
-    
-    print("Satellite: ", line0)
-    print("At time (UTC): ", year, month, day, hour, minute, second)
-    print("Raw postion vector: ", r)
-
-    print(f"Latitude: {lat:.6f}°")
-    print(f"Longitude: {lon:.6f}°")
-    print(f"Altitude: {alt:.2f} km")
-    print(accelerated)
-else:
-    print("Error with SGP4 propagation")
+for name, lat, lon, alt in positions:
+    if lat is not None:
+        print(f"Satellite: {name}")
+        print(f"Latitude: {lat:.6f}°")
+        print(f"Longitude: {lon:.6f}°")
+        print(f"Altitude: {alt:.2f} km")
+    else:
+        print(f"Satellite: {name} - Error with SGP4 propagation")
