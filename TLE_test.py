@@ -1,5 +1,6 @@
 from sgp4.api import Satrec, jday
 import numpy as np
+import csv
 
 # Constants
 a = 6378.137  # Earth's equatorial radius in km
@@ -84,8 +85,24 @@ def compute_positions(satellites, year, month, day, hour, minute, second):
             results.append((name, None, None, None))
     return results
 
+def save_positions_to_file(positions, output_filename):
+    """
+    Save the computed positions to a CSV file.
+    """
+    with open(output_filename, 'w', newline='') as csvfile:
+        fieldnames = ['Satellite', 'Latitude', 'Longitude', 'Altitude']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for name, lat, lon, alt in positions:
+            if lat is not None:
+                writer.writerow({'Satellite': name, 'Latitude': lat, 'Longitude': lon, 'Altitude': alt})
+            else:
+                writer.writerow({'Satellite': name, 'Latitude': 'Error', 'Longitude': 'Error', 'Altitude': 'Error'})
+
 # Example usage
 filename = 'TLE.txt'
+output_filename = 'satellite_positions.csv'
 year = 2024
 month = 8
 day = 13
@@ -95,12 +112,4 @@ second = 0
 
 satellites = read_tle_file(filename)
 positions = compute_positions(satellites, year, month, day, hour, minute, second)
-
-for name, lat, lon, alt in positions:
-    if lat is not None:
-        print(f"Satellite: {name}")
-        print(f"Latitude: {lat:.6f}°")
-        print(f"Longitude: {lon:.6f}°")
-        print(f"Altitude: {alt:.2f} km")
-    else:
-        print(f"Satellite: {name} - Error with SGP4 propagation")
+save_positions_to_file(positions, output_filename)
