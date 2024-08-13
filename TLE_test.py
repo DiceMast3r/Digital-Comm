@@ -85,20 +85,42 @@ def compute_positions(satellites, year, month, day, hour, minute, second):
             results.append((name, None, None, None))
     return results
 
-def save_positions_to_file(positions, output_filename):
+def save_positions_to_file(positions, output_filename, year, month, day, hour, minute, second):
     """
     Save the computed positions to a CSV file.
     """
     with open(output_filename, 'w', newline='') as csvfile:
-        fieldnames = ['Satellite', 'Latitude', 'Longitude', 'Altitude']
+        fieldnames = ['Satellite', 'Latitude', 'Longitude', 'Altitude', 'Year', 'Month', 'Day', 'Hour', 'Minute', 'Second']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
         for name, lat, lon, alt in positions:
             if lat is not None:
-                writer.writerow({'Satellite': name, 'Latitude': lat, 'Longitude': lon, 'Altitude': alt})
+                writer.writerow({
+                    'Satellite': name, 
+                    'Latitude': lat, 
+                    'Longitude': lon, 
+                    'Altitude': alt,
+                    'Year': year,
+                    'Month': month,
+                    'Day': day,
+                    'Hour': hour,
+                    'Minute': minute,
+                    'Second': second
+                })
             else:
-                writer.writerow({'Satellite': name, 'Latitude': 'Error', 'Longitude': 'Error', 'Altitude': 'Error'})
+                writer.writerow({
+                    'Satellite': name, 
+                    'Latitude': 'Error', 
+                    'Longitude': 'Error', 
+                    'Altitude': 'Error',
+                    'Year': year,
+                    'Month': month,
+                    'Day': day,
+                    'Hour': hour,
+                    'Minute': minute,
+                    'Second': second
+                })
 
 # Example usage
 filename = 'TLE.txt'
@@ -112,4 +134,4 @@ second = 0
 
 satellites = read_tle_file(filename)
 positions = compute_positions(satellites, year, month, day, hour, minute, second)
-save_positions_to_file(positions, output_filename)
+save_positions_to_file(positions, output_filename, year, month, day, hour, minute, second)
