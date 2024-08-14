@@ -41,7 +41,7 @@ plt.plot(n_t)
 plt.title("Gaussian noise")"""
 
 # received signal
-r_t = x_t +n_t
+r_t = x_t + n_t
 
 """plt.figure(figsize=(10, 5))
 plt.plot(r_t)
