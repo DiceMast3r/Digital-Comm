@@ -1,6 +1,6 @@
 from sgp4.api import Satrec, jday
 import numpy as np
-import csv
+import json
 
 # Constants
 a = 6378.137  # Earth's equatorial radius in km
@@ -87,44 +87,43 @@ def compute_positions(satellites, year, month, day, hour, minute, second):
 
 def save_positions_to_file(positions, output_filename, year, month, day, hour, minute, second):
     """
-    Save the computed positions to a CSV file.
+    Save the computed positions to a JSON file.
     """
-    with open(output_filename, 'w', newline='') as csvfile:
-        fieldnames = ['Satellite', 'Latitude', 'Longitude', 'Altitude', 'Year', 'Month', 'Day', 'Hour', 'Minute', 'Second']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-        writer.writeheader()
-        for name, lat, lon, alt in positions:
-            if lat is not None:
-                writer.writerow({
-                    'Satellite': name, 
-                    'Latitude': lat, 
-                    'Longitude': lon, 
-                    'Altitude': alt,
-                    'Year': year,
-                    'Month': month,
-                    'Day': day,
-                    'Hour': hour,
-                    'Minute': minute,
-                    'Second': second
-                })
-            else:
-                writer.writerow({
-                    'Satellite': name, 
-                    'Latitude': 'Error', 
-                    'Longitude': 'Error', 
-                    'Altitude': 'Error',
-                    'Year': year,
-                    'Month': month,
-                    'Day': day,
-                    'Hour': hour,
-                    'Minute': minute,
-                    'Second': second
-                })
+    data = []
+    for name, lat, lon, alt in positions:
+        if lat is not None:
+            data.append({
+                'Satellite': name, 
+                'Latitude': lat, 
+                'Longitude': lon, 
+                'Altitude': alt,
+                'Year': year,
+                'Month': month,
+                'Day': day,
+                'Hour': hour,
+                'Minute': minute,
+                'Second': second
+            })
+        else:
+            data.append({
+                'Satellite': name, 
+                'Latitude': 'Error', 
+                'Longitude': 'Error', 
+                'Altitude': 'Error',
+                'Year': year,
+                'Month': month,
+                'Day': day,
+                'Hour': hour,
+                'Minute': minute,
+                'Second': second
+            })
+    
+    with open(output_filename, 'w') as jsonfile:
+        json.dump(data, jsonfile, indent=4)
 
 # Example usage
 filename = 'TLE.txt'
-output_filename = 'satellite_positions.csv'
+output_filename = 'satellite_positions.json'
 year = 2024
 month = 8
 day = 13
