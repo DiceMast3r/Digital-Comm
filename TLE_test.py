@@ -55,21 +55,24 @@ def ecef_to_latlon(r_ecef):
     return lat, lon, alt
 
 # Example TLE data
-line0 = "GPS BIIF-9  (PRN 26)"
-line1 = "1 40534U 15013A   24194.06691307  .00000033  00000+0  00000+0 0  9992"
-line2 = "2 40534  53.3359 233.3662 0088230  29.7523 330.8139  2.00564147 68101"
+line0 = "GPS BIIF-3  (PRN 24)"
+line1 = "1 38833U 12053A   24225.24064600  .00000039  00000+0  00000+0 0  9993"
+line2 = "2 38833  53.5193 171.1798 0154929  56.6227 304.8345  2.00559544 85920"
 
 # Initialize satellite object
 satellite = Satrec.twoline2rv(line1, line2)
 
 # Define the date and time for the calculation (e.g., Julian Date)
 year = 2024
-month = 7
-day = 12
-hour = 14
-minute = 15
+month = 8
+day = 13
+hour_local = 12
+minute = 55
 second = 0
+hour = hour_local - 7
+
 jd, fr = jday(year, month, day, hour, minute, second)
+
 
 # Calculate position and velocity
 e, r, v = satellite.sgp4(jd, fr)
@@ -82,12 +85,14 @@ if e == 0:
     lat, lon, alt = ecef_to_latlon(r_ecef)
     
     print("Satellite: ", line0)
-    print("At time (UTC): ", year, month, day, hour, minute, second)
+    print("Date: ", year, month, day)
+    print("At time (UTC): {0} hours, {1} minutes, {2} seconds".format(hour, minute, second))
+    print("Local time (UTC+7): {0} hours, {1} minutes, {2} seconds".format(hour_local, minute, second))
     print("Raw postion vector: ", r)
 
     print(f"Latitude: {lat:.6f}°")
     print(f"Longitude: {lon:.6f}°")
     print(f"Altitude: {alt:.2f} km")
-    print(accelerated)
+    print("C++ accel: " + str(accelerated))
 else:
     print("Error with SGP4 propagation")
