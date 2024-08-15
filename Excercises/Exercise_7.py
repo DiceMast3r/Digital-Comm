@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-Nbits = 10000
+Nbits = 10
 Nsamp = 20
 
 #1. Generate data bits
@@ -24,9 +24,9 @@ for i in range(Nbits):
    x_t.extend(a[i]*cos_t)
 
 tt = np.arange(0, Nbits, 1/(f*Nsamp))
-"""plt.figure(figsize=(10, 5))
+plt.figure(figsize=(10, 5))
 plt.plot(tt, x_t)
-plt.title("ASK Modulated signal x(t)")"""
+plt.title("ASK Modulated signal x(t)")
 
 #  Generate Gaussian noise
 mu = 0
@@ -65,10 +65,10 @@ plt.stem(z)
 plt.title("Correlator output z[k]")
 
 #plot signal vectors, constellation of correlator output z
-"""plt.figure(figsize=(10, 5))
+plt.figure(figsize=(10, 5))
 plt.scatter(z, np.zeros(Nbits), color='b')
 plt.scatter([1,0],[0, 0], color='r')
-plt.title("Constellation of correlator output z")"""
+plt.title("Constellation of correlator output z")
 
 plt.figure(figsize=(10, 5))
 plt.hist(z, density=True, bins=100)
@@ -89,6 +89,5 @@ print('err_num = ', err_num)
 
 ber = err_num / Nbits
 print('BER = ', ber)
-
 
 plt.show()

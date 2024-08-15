@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-Nbits = 1000
+Nbits = 10
 Nsamp = 20
 
 # 1. Generate data bits
@@ -62,13 +62,13 @@ for i in range(Nbits):
   z_tt.extend(z_t_2)
   z.append(z_t_out_2 - z_t_out)           # output of correlator at all time
 
-"""plt.figure(figsize=(10, 5))
+plt.figure(figsize=(10, 5))
 plt.plot(z_tt)
 plt.title("Correlator output z(t)")
 
 plt.figure(figsize=(10, 5))
 plt.stem(z)
-plt.title("Correlator output z[k]")"""
+plt.title("Correlator output z[k]")
 
 #plot signal vectors, constellation of correlator output z
 """plt.figure(figsize=(10, 5))
