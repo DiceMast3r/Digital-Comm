@@ -22,7 +22,7 @@ def update(frame):
     return line,
 
 # Create the animation
-ani = FuncAnimation(fig, update, frames=range(100), blit=True)
+ani = FuncAnimation(fig, update, frames=100, blit=True)
 
 # Save the animation as a GIF
 ani.save("sine_wave_with_title.gif", writer='pillow', fps=10)
