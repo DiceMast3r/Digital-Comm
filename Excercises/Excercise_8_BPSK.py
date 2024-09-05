@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plot
 import math
 
-Nbits = 10
+Nbits = 1000
 Nsamp = 20
 M = 2
 
@@ -36,7 +36,7 @@ plot.title("Modulated Signal")
 
 #  Generate Gaussian noise
 mu = 0
-sigma = 0.1
+sigma = 1
 n_t = np.random.normal(mu, sigma, np.size(x_t) )
 plot.figure(figsize=(10, 6))
 plot.plot(n_t)
@@ -93,5 +93,12 @@ print("a_hat = ", a_hat)
 plot.figure(figsize=(10, 6))
 plot.stem(a_hat)
 plot.title("Decoded Signal")
+
+# Calculate the bit error rate
+err_num = sum((a != a_hat))
+print('err_num = ', err_num)
+
+ber = err_num / Nbits
+print('BER = ', ber)
 
 plot.show()
