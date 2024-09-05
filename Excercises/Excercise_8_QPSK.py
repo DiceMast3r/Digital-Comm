@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plot
 import math
 
-Nsymb = 1000
+Nsymb = 10
 Nsamp = 20
 M = 4
 
