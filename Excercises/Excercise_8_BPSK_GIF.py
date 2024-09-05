@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plot
 import math
+from matplotlib.animation import FuncAnimation, PillowWriter
+
 
 Nbits = 1000
 Nsamp = 20
@@ -36,7 +38,7 @@ plot.title("Modulated Signal")
 
 #  Generate Gaussian noise
 mu = 0
-sigma = 1
+sigma = 0.1
 n_t = np.random.normal(mu, sigma, np.size(x_t) )
 plot.figure(figsize=(10, 6))
 plot.plot(n_t)
@@ -94,11 +96,28 @@ plot.figure(figsize=(10, 6))
 plot.stem(a_hat)
 plot.title("Decoded Signal")
 
-# Calculate the bit error rate
-err_num = sum((a != a_hat))
-print('err_num = ', err_num)
+# Create the constellation plot GIF
+fig, ax = plot.subplots()  # Create a figure and axis
+ax.set_xlim(-2, 2)  # Set the limits of the plot
+ax.set_ylim(-2, 2)  # Set the limits of the plot
+ax.set_xlabel('In-phase Component')  # Label
+ax.set_ylabel('Quadrature Component')  # Label
+ax.set_title('Constellation Diagram')  # Title
+ax.grid(True)  # Show grid
 
-ber = err_num / Nbits
-print('BER = ', ber)
+# Red reference points at [1, -1]
+ax.scatter([1, -1], [0, 0], color='r')  # Reference points
 
-plot.show()
+# Scatter plot for the in-phase and quadrature components
+scatter, = ax.plot([], [], 'bo')  # Blue dots
+
+def update(frame):  # Update function for the animation
+    scatter.set_data(z[:frame], np.zeros(frame))  # Update the scatter plot
+    return scatter,  # Return the updated plot
+
+# Animate and save as animated GIF
+ani = FuncAnimation(fig, update, frames=200, blit=True, interval=20)  # frames = length of GIF, interval = time between frames in milliseconds
+
+ani.save('BPSK_constellation.gif', writer=PillowWriter(fps=10))  # Save as animated GIF, fps = frames per second, save in the same directory as the script
+
+#plot.show()

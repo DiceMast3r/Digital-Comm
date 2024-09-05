@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plot
 import math
 
-Nsymb = 10
+Nsymb = 1000
 Nsamp = 20
 M = 4
 
@@ -64,7 +64,7 @@ fig.tight_layout()
 
 #  Generate Gaussian noise
 mu = 0
-sigma = 0.1
+sigma = 4
 n_t = np.random.normal(mu, sigma, np.size(x_t) )
 plot.figure(figsize=(10, 6))
 plot.plot(n_t)
@@ -149,4 +149,13 @@ print("transmitted data")
 print('a_I = ', a_I)
 print('a_Q = ', a_Q)
 
-plot.show()
+# Calculate the bit error rate
+err_num_1 = sum((a_I != a_I_hat))
+print('err_num I = ', err_num_1)
+err_num_2 = sum((a_Q != a_Q_hat))
+print('err_num Q = ', err_num_2)
+
+ber = (err_num_1 + err_num_2) / (2*Nsymb)
+print('BER = ', ber)
+
+#plot.show()
