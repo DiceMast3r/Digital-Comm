@@ -30,7 +30,7 @@ plt.title("ASK Modulated signal x(t)")
 
 #  Generate Gaussian noise
 mu = 0
-sigma = 1
+sigma = 0.1
 
 n_t = np.random.normal(mu, sigma, np.size(x_t) )
 print(np.var(n_t))
