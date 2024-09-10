@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plot
 import math
 
-Nbits = 1000
+Nbits = 10
 Nsamp = 20
 M = 2
 

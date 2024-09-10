@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plot
 import math
+import scipy.fft as fft
 
-Nsymb = 1000
+Nsymb = 12
 Nsamp = 20
 M = 4
 
@@ -18,7 +19,7 @@ Q = 2*a_Q -1
 print("a_I = ", a_I)
 print("a_Q = ", a_Q)
 
-f = 4
+f = 10
 t = np.arange(0, 1, 1/(f*Nsamp))
 cos_t = np.cos(2*np.pi*f*t)
 sin_t = np.sin(2*np.pi*f*t)
@@ -61,6 +62,19 @@ axes[2].plot(tt, x_t, 'r')
 axes[2].grid(True)
 axes[2].set_title('x(t) (QPSK signal)')
 fig.tight_layout()
+
+x_t_fft = np.array(fft.fft(x_t))
+f_x_t = fft.fftfreq(len(x_t), 1/(f*Nsamp))
+
+# Show Magnitude spectrum of x_t_fft
+plot.figure(figsize=(12, 6))
+plot.plot(f_x_t, np.abs(x_t_fft))
+plot.title('Spectrum of QPSK Signal')
+plot.xlabel('Frequency (Hz)')
+plot.ylabel('Magnitude')
+plot.grid(True)
+plot.show()
+
 
 #  Generate Gaussian noise
 mu = 0
