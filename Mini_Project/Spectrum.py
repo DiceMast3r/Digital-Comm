@@ -58,7 +58,7 @@ def plot_constellation(psk):
         gray_code = int_to_gray(i)  # Get the Gray code for the index
         plt.text(symb.real - 0.05, symb.imag + 0.05, f"{gray_code:04b}")  # Display Gray code as binary
     
-    plt.title('8-PSK Constellation')
+    plt.title('PSK Constellation')
     plt.grid(True)
     plt.show()
 

@@ -85,6 +85,7 @@ s_to_p_out = np.reshape(qpsk_symb, (4, Nbit // 8))
 
 ifft_data = np.array(fft.ifft2(s_to_p_out)) # IFFT of s_to_p_out
 
+# Parallel to serial output
 ifft_out = np.array(ifft_data).flatten()
 
 print("Bit rate = {0} bits/second".format(R_s * np.log2(M)))
