@@ -57,14 +57,14 @@ def plot_constellation(psk):
         gray_code = int_to_gray(i)  # Get the Gray code for the index
         plt.text(symb.real - 0.05, symb.imag + 0.05, f"{gray_code:04b}")  # Display Gray code as binary
     
-    plt.title('16-PSK Constellation')
+    plt.title('8-PSK Constellation')
     plt.grid(True)
     plt.show()
 
 # Parameters
-M = 16  # QPSK modulation
-Nsymb = 50 * (16) # must be a multiple of 16
-Nbit = Nsymb * 4 
+M = 8  # QPSK modulation
+Nsymb = 50 * (8) # must be a multiple of 16
+Nbit = Nsymb * 3 
 f_1 = 20 # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
 T = 0.25  # Symbol duration (seconds)
@@ -77,11 +77,11 @@ np.random.seed(6)
 data = np.random.randint(0, 2, Nbit)
 
 # QPSK modulation
-psk = komm.PSKModulation(M, phase_offset=np.pi/16)
+psk = komm.PSKModulation(M, phase_offset=np.pi/8)
 symb = psk.modulate(data)
 
 # Serial to 16 parallel output
-symb_s_to_p = np.reshape(symb, (16, Nbit // 64))
+symb_s_to_p = np.reshape(symb, (8, Nbit // 24))
 
 # IFFT of symb_s_to_p
 ifft_data = np.array(fft.ifft2(symb_s_to_p))
@@ -94,26 +94,26 @@ print("Symbol rate = {0} symbols/second".format(R_s))
 #print(f"Frequency of subcarrier: {ComputeSCFreq(f_1, M, R_s)} Hz")
 
 # Store symbols in a list of subcarriers
-sc = symb_s_to_p[:16]
+sc = symb_s_to_p[:8]
 
 # Generate the QPSK signal for each symbol and concatenate
 sig = []
-for i in range(16):
+for i in range(8):
     sig.append(SymbolToWave(sc[i], f_sc[i], t_symbol))
 
-t_total = np.linspace(0, len(symb) * T, len(sig) // 16, endpoint=False)
+t_total = np.linspace(0, len(symb) * T, len(sig) // 8, endpoint=False)
 
 # Compute the spectrum of the modulated signal
 sig_fft = []
 freq = []
-for i in range(16):
+for i in range(8):
     sig_fft_i, freq_i = ComputeSpectrum(sig[i], fs)
     sig_fft.append(sig_fft_i)
     freq.append(freq_i)
 
 # Plot the spectrum of the modulated signal
 plt.figure(figsize=(10, 4))
-for i in range(16):
+for i in range(8):
     plt.plot(freq[i], np.abs(sig_fft[i]))
 plt.title("Modulated Signal Spectrum")
 plt.xlabel("Frequency (Hz)")
@@ -127,7 +127,7 @@ awgn = komm.AWGNChannel(snr=10, signal_power='measured')
 rx_signal = awgn(ifft_p_to_s_out); np.round(rx_signal, 6) # Add AWGN noise to the data
 
 # Serial to 16 Parallel output
-rx_s_to_p_out = np.reshape(rx_signal, (16, Nbit // 64))
+rx_s_to_p_out = np.reshape(rx_signal, (8, Nbit // 24))
 
 # FFT of rx_data_2
 rx_fft = np.array(fft.fft2(rx_s_to_p_out))
