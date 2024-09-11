@@ -13,7 +13,8 @@ def BERCurve_QPSK(snr_in):
 
     # Parameters
     M = 4  # QPSK modulation
-    Nbit = (2**18) # Must be a multiple of 4
+    Nsymb = 5000 # Number of symbols
+    Nbit = Nsymb * 2 
     
     np.random.seed(6)
     data = np.random.randint(0, 2, Nbit)
@@ -56,7 +57,7 @@ def BERCurve_16PSK(snr_in):
 
     # Parameters
     M = 16  # QPSK modulation
-    Nsymb = 16 * 16384 # must be a multiple of 16
+    Nsymb = 16 * 5000 # must be a multiple of 16
     Nbit = Nsymb * 4 
     
     np.random.seed(6)
@@ -93,12 +94,60 @@ def BERCurve_16PSK(snr_in):
     
     return ComputeBER(data, rx_bit, Nbit)
 
+def BERCurve_8PSK(snr_in):
+    def ComputeBER(data, rx_data, Nbit):
+        # Compute the bit error rate
+        ber = np.sum(rx_data != data) / Nbit
+        return ber
+
+    # Parameters
+    M = 8  # QPSK modulation
+    Nsymb = 8 * 5000 # must be a multiple of 8
+    Nbit = Nsymb * 3 
+    
+    np.random.seed(6)
+    data = np.random.randint(0, 2, Nbit)
+
+    # QPSK modulation
+    psk = komm.PSKModulation(M, phase_offset=np.pi/16)
+    symb = psk.modulate(data)
+
+    # Serial to 16 parallel output
+    symb_s_to_p = np.reshape(symb, (8, Nbit // 24))
+
+    # IFFT of symb_s_to_p
+    ifft_data = np.array(fft.ifft2(symb_s_to_p))
+
+    # 16 Parallel to serial 
+    ifft_p_to_s_out = np.array(ifft_data).flatten()
+    
+    # Create a AWGN channel
+    awgn = komm.AWGNChannel(snr=snr_in, signal_power='measured') 
+    rx_signal = awgn(ifft_p_to_s_out); np.round(rx_signal, 6) # Add AWGN noise to the data
+
+    # Serial to 16 Parallel output
+    rx_s_to_p_out = np.reshape(rx_signal, (8, Nbit // 24))
+
+    # FFT of rx_data_2
+    rx_fft = np.array(fft.fft2(rx_s_to_p_out))
+
+    # 16 Parallel to serial
+    rx_fft_p_to_s_out = np.array(rx_fft).flatten()
+
+    # Demodulate the received signal
+    rx_bit = psk.demodulate(rx_fft_p_to_s_out)
+    
+    return ComputeBER(data, rx_bit, Nbit)
+    
+
+
 # Start the timer
 start_time = time.time()
 
 snr = np.arange(1, 10, 0.5)
 snr_linear = 10 ** (snr / 10)
 ber_qpsk = [BERCurve_QPSK(snr_in) for snr_in in snr_linear]
+ber_8psk = [BERCurve_8PSK(snr_in) for snr_in in snr_linear]
 ber_16psk = [BERCurve_16PSK(snr_in) for snr_in in snr_linear]
 
 # End the timer
@@ -110,10 +159,11 @@ print("Program execution time: {0:.3f} seconds".format(elapsed_time))
 
 plt.figure(figsize=(10, 4))
 plt.semilogy(snr, ber_qpsk, label='QPSK')
+plt.semilogy(snr, ber_8psk, label='8PSK')
 plt.semilogy(snr, ber_16psk, label='16PSK')
 plt.title("BER vs SNR")
 plt.xlabel("SNR (dB)")
 plt.ylabel("BER")
-plt.grid(True)
+plt.grid(True, which='both')
 plt.legend()
 plt.show()

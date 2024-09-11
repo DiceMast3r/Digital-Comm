@@ -43,6 +43,23 @@ def ComputeBER(data, rx_data, Nbit):
     ber = np.sum(rx_data != data) / Nbit
     return ber
 
+def int_to_gray(n):
+    # Function to convert an integer to Gray code
+    return n ^ (n >> 1)
+
+def plot_constellation(psk):
+    # Plot the constellation with Gray code labels
+    plt.figure(figsize=(10, 5))
+    plt.scatter(psk.constellation.real, psk.constellation.imag)
+    
+    # Iterate over each symbol in the constellation
+    for i, symb in enumerate(psk.constellation):
+        gray_code = int_to_gray(i)  # Get the Gray code for the index
+        plt.text(symb.real - 0.05, symb.imag + 0.05, f"{gray_code:04b}")  # Display Gray code as binary
+    
+    plt.title('QPSK Constellation')
+    plt.grid(True)
+    plt.show()
 
 # Parameters
 M = 4  # QPSK modulation
@@ -72,40 +89,31 @@ ifft_out = np.array(ifft_data).flatten()
 
 print("Bit rate = {0} bits/second".format(R_s * np.log2(M)))
 print("Symbol rate = {0} symbols/second".format(R_s))
+print("Number of subcarriers: {0}".format(M))
 print(f"Frequency of subcarrier: {ComputeSCFreq(f_1, M, R_s)} Hz")
 
 # Extract the symbols to send to 4 subcarriers
-a = s_to_p_out[0] 
-b = s_to_p_out[1]
-c = s_to_p_out[2]
-d = s_to_p_out[3]
+sc = s_to_p_out[:4]
 
-sig_a = SymbolToWave(a, f_sc[0], t_symbol)
-sig_b = SymbolToWave(b, f_sc[1], t_symbol)
-sig_d = SymbolToWave(d, f_sc[2], t_symbol)
-sig_c = SymbolToWave(c, f_sc[3], t_symbol)
+# Generate the QPSK signal for each symbol and concatenate
+sig = []
+for i in range(4):
+    sig.append(SymbolToWave(sc[i], f_sc[i], t_symbol))
 
-t_total = np.linspace(0, len(qpsk_symb) * T, len(sig_a), endpoint=False)
+t_total = np.linspace(0, len(qpsk_symb) * T, len(sig) // 4, endpoint=False)
 
-sig_fft_a, freq_a = ComputeSpectrum(sig_a, fs)
-sig_fft_b, freq_b = ComputeSpectrum(sig_b, fs)
-sig_fft_c, freq_c = ComputeSpectrum(sig_c, fs)
-sig_fft_d, freq_d = ComputeSpectrum(sig_d, fs)
+# Compute the spectrum of the modulated signal
+sig_fft = []
+freq = []
+for i in range(4):
+    sig_fft_i, freq_i = ComputeSpectrum(sig[i], fs)
+    sig_fft.append(sig_fft_i)
+    freq.append(freq_i)
 
-'''# Plot the QPSK waveform
+# Plot the spectrum of the modulated signal
 plt.figure(figsize=(10, 4))
-plt.plot(t_total, sig_a)
-plt.title("QPSK Modulated Signal")
-plt.xlabel("Sample (n)")
-plt.ylabel("Amplitude")
-plt.grid(True)
-plt.show()'''
-
-plt.figure(figsize=(10, 4))
-plt.plot(freq_a, np.abs(sig_fft_a))
-plt.plot(freq_b, np.abs(sig_fft_b))
-plt.plot(freq_c, np.abs(sig_fft_c))
-plt.plot(freq_d, np.abs(sig_fft_d))
+for i in range(4):
+    plt.plot(freq[i], np.abs(sig_fft[i]))
 plt.title("Modulated Signal Spectrum")
 plt.xlabel("Frequency (Hz)")
 plt.ylabel("Magnitude")
@@ -128,4 +136,5 @@ rx_fft_p_to_s = np.array(rx_fft).flatten()
 # Demodulate the received signal
 rx_bit = psk.demodulate(rx_fft_p_to_s)
 
+print("Total bits: {0}, Error bits: {1}".format(Nbit, np.sum(rx_bit != data)))
 print(f"Bit Error Rate: {ComputeBER(data, rx_bit, Nbit):.4f}")

@@ -91,7 +91,8 @@ ifft_p_to_s_out = np.array(ifft_data).flatten()
 
 print("Bit rate = {0} bits/second".format(R_s * np.log2(M)))
 print("Symbol rate = {0} symbols/second".format(R_s))
-#print(f"Frequency of subcarrier: {ComputeSCFreq(f_1, M, R_s)} Hz")
+print("Number of subcarriers: {0}".format(M))
+print(f"Frequency of subcarrier: {ComputeSCFreq(f_1, M, R_s)} Hz")
 
 # Store symbols in a list of subcarriers
 sc = symb_s_to_p[:16]
