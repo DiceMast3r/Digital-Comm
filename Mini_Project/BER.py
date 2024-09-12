@@ -144,7 +144,7 @@ def BERCurve_8PSK(snr_in):
 # Start the timer
 start_time = time.time()
 
-snr = np.arange(1, 10, 0.5)
+snr = np.arange(0.1, 10, 0.1)
 snr_linear = 10 ** (snr / 10)
 ber_qpsk = [BERCurve_QPSK(snr_in) for snr_in in snr_linear]
 ber_8psk = [BERCurve_8PSK(snr_in) for snr_in in snr_linear]
