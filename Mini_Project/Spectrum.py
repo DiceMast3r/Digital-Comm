@@ -80,7 +80,7 @@ np.random.seed(6)
 data = np.random.randint(0, 2, Nbit)
 
 # QPSK modulation
-psk = komm.PSKModulation(M, phase_offset=np.pi/8)
+psk = komm.PSKModulation(M)
 symb = psk.modulate(data)
 
 # Serial to 16 parallel output

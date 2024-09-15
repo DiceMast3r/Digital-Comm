@@ -50,12 +50,12 @@ def int_to_gray(n):
 def plot_constellation(psk):
     # Plot the constellation with Gray code labels
     plt.figure(figsize=(10, 5))
-    plt.scatter(psk.constellation.real, psk.constellation.imag)
+    plt.scatter(psk.constellation.real, psk.constellation.imag, color='red')
     
     # Iterate over each symbol in the constellation
     for i, symb in enumerate(psk.constellation):
         gray_code = int_to_gray(i)  # Get the Gray code for the index
-        plt.text(symb.real - 0.05, symb.imag + 0.05, f"{gray_code:04b}")  # Display Gray code as binary
+        plt.text(symb.real - 0.05, symb.imag + 0.05, f"{gray_code:02b}")  # Display Gray code as binary
     
     plt.title('QPSK Constellation')
     plt.grid(True)
@@ -63,10 +63,10 @@ def plot_constellation(psk):
 
 # Parameters
 M = 4  # QPSK modulation
-Nbit = 1024 # Must be a multiple of 4
-f_1 = 20 # 1st Carrier frequency (Hz)
+Nbit = 1024 * 8 # Must be a multiple of 4
+f_1 = 5000 # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
-T = 0.25  # Symbol duration (seconds)
+T = 2e-3  # Symbol duration (seconds)
 R_s = 1 / T  # Symbol rate (symbols/second)
 num_samples = int(fs * T)  # Number of samples per symbol
 t_symbol = np.linspace(0, T, num_samples, endpoint=False)  # Time vector for one symbol

@@ -50,12 +50,12 @@ def int_to_gray(n):
 def plot_constellation(psk):
     # Plot the constellation with Gray code labels
     plt.figure(figsize=(10, 5))
-    plt.scatter(psk.constellation.real, psk.constellation.imag)
+    plt.scatter(psk.constellation.real, psk.constellation.imag, color='red')
     
     # Iterate over each symbol in the constellation
     for i, symb in enumerate(psk.constellation):
         gray_code = int_to_gray(i)  # Get the Gray code for the index
-        plt.text(symb.real - 0.05, symb.imag + 0.05, f"{gray_code:04b}")  # Display Gray code as binary
+        plt.text(symb.real - 0.05, symb.imag + 0.05, f"{gray_code:03b}")  # Display Gray code as binary
     
     plt.title('8-PSK Constellation')
     plt.grid(True)
@@ -77,8 +77,9 @@ np.random.seed(6)
 data = np.random.randint(0, 2, Nbit)
 
 # QPSK modulation
-psk = komm.PSKModulation(M, phase_offset=np.pi/8)
+psk = komm.PSKModulation(M)
 symb = psk.modulate(data)
+plot_constellation(psk)
 
 # Serial to 16 parallel output
 symb_s_to_p = np.reshape(symb, (8, Nbit // 24))
