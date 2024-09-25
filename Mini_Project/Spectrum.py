@@ -5,7 +5,7 @@ import komm
 import scipy.fft as fft
 
 def SymbolToWave(symb, fc, t_symbol):
-    # Generate the QPSK signal for each symbol and concatenate
+    # Generate the PSK signal for each symbol and concatenate
     qpsk_signal = np.array([])  # Empty array to store the entire signal
 
     for symbol in symb:
@@ -17,10 +17,10 @@ def SymbolToWave(symb, fc, t_symbol):
         carrier_I = I * np.cos(2 * np.pi * fc * t_symbol)
         carrier_Q = Q * np.sin(2 * np.pi * fc * t_symbol)
     
-        # QPSK modulated signal for the current symbol
+        # PSK modulated signal for the current symbol
         symbol_signal = carrier_I - carrier_Q
     
-        # Append to the overall QPSK signal
+        # Append to the overall PSK signal
         qpsk_signal = np.concatenate((qpsk_signal, symbol_signal))
         
     return qpsk_signal
@@ -63,8 +63,8 @@ def plot_constellation(psk):
     plt.show()
 
 # Parameters
-M = int(input("Enter modulation order (M): ")) 
-Nsymb = 1024 * (M) # must be a multiple of 16
+M = int(input("Enter modulation order (M) (ex. 4, 8, 16): ")) 
+Nsymb = 1024 * (M) # must be a multiple of 2
 Nbit = Nsymb * int(np.log2(M)) # Number of bits
 f_1 = 20 # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
@@ -73,23 +73,24 @@ R_s = 1 / T  # Symbol rate (symbols/second)
 num_samples = int(fs * T)  # Number of samples per symbol
 t_symbol = np.linspace(0, T, num_samples, endpoint=False)  # Time vector for one symbol
 f_sc = ComputeSCFreq(f_1, M, R_s)
+CP_length = (1/4) * T  # Cyclic prefix length
 
 log2M = int(log(M, 2))
 
 np.random.seed(6)
 data = np.random.randint(0, 2, Nbit)
 
-# QPSK modulation
+# PSK modulation
 psk = komm.PSKModulation(M)
 symb = psk.modulate(data)
 
-# Serial to 16 parallel output
+# Serial to parallel output
 symb_s_to_p = np.reshape(symb, (M, Nbit // (M * log2M)))
 
 # IFFT of symb_s_to_p
 ifft_data = np.array(fft.ifft2(symb_s_to_p))
 
-# 16 Parallel to serial 
+# Parallel to serial 
 ifft_p_to_s_out = np.array(ifft_data).flatten()
 
 print("Bit rate = {0} bits/second".format(R_s * np.log2(M)))
@@ -100,7 +101,7 @@ print(f"Frequency of subcarrier: {ComputeSCFreq(f_1, M, R_s)} Hz")
 # Store symbols in a list of subcarriers
 sc = symb_s_to_p[:M]
 
-# Generate the QPSK signal for each symbol and concatenate
+# Generate the PSK signal for each symbol and concatenate
 sig = []
 for i in range(M):
     sig.append(SymbolToWave(sc[i], f_sc[i], t_symbol))
@@ -127,16 +128,17 @@ plt.show()
 
 
 # Create a AWGN channel
-awgn = komm.AWGNChannel(snr=10, signal_power='measured')
+awgn = komm.AWGNChannel(snr=30, signal_power='measured')
 rx_signal = awgn(ifft_p_to_s_out); np.round(rx_signal, 6) # Add AWGN noise to the data
+#rx_signal = ifft_p_to_s_out  # No noise
 
-# Serial to 16 Parallel output
+# Serial to Parallel output
 rx_s_to_p_out = np.reshape(rx_signal, (M, Nbit // (M * log2M)))
 
 # FFT of rx_data_2
 rx_fft = np.array(fft.fft2(rx_s_to_p_out))
 
-# 16 Parallel to serial
+# Parallel to serial
 rx_fft_p_to_s_out = np.array(rx_fft).flatten()
 
 # Demodulate the received signal

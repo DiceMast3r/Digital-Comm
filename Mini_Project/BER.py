@@ -147,8 +147,8 @@ start_time = time.time()
 snr = np.arange(0.1, 10, 0.1)
 snr_linear = 10 ** (snr / 10)
 ber_qpsk = [BERCurve_QPSK(snr_in) for snr_in in snr_linear]
-ber_8psk = [BERCurve_8PSK(snr_in) for snr_in in snr_linear]
-ber_16psk = [BERCurve_16PSK(snr_in) for snr_in in snr_linear]
+#ber_8psk = [BERCurve_8PSK(snr_in) for snr_in in snr_linear]
+#ber_16psk = [BERCurve_16PSK(snr_in) for snr_in in snr_linear]
 
 # End the timer
 end_time = time.time()
@@ -158,9 +158,9 @@ elapsed_time = end_time - start_time
 print("Program execution time: {0:.3f} seconds".format(elapsed_time))
 
 plt.figure(figsize=(10, 4))
-plt.semilogy(snr, ber_qpsk, label='QPSK')
-plt.semilogy(snr, ber_8psk, label='8PSK')
-plt.semilogy(snr, ber_16psk, label='16PSK')
+plt.semilogy(snr, ber_qpsk, label='QPSK (4 subcarriers)')
+#plt.semilogy(snr, ber_8psk, label='8-PSK')
+#plt.semilogy(snr, ber_16psk, label='16-PSK')
 plt.title("BER vs SNR")
 plt.xlabel("SNR (dB)")
 plt.ylabel("BER")

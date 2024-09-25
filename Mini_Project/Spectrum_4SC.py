@@ -63,7 +63,7 @@ def plot_constellation(psk):
 
 # Parameters
 M = 4  # QPSK modulation
-Nbit = 1024 * 8 # Must be a multiple of 4
+Nbit = 1024 * 1 # Must be a multiple of 4
 f_1 = 5000 # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
 T = 2e-3  # Symbol duration (seconds)
@@ -74,19 +74,26 @@ f_sc = ComputeSCFreq(f_1, M, R_s)
 
 np.random.seed(6)
 data = np.random.randint(0, 2, Nbit)
+print("Data = ", data)
+print("Data shape = ", data.shape)
 
 # QPSK modulation
 psk = komm.PSKModulation(M, phase_offset=np.pi/4)
 qpsk_symb = psk.modulate(data)
+print("QPSK symbols = ", qpsk_symb.round(3))
+print("QPSK symbols shape = ", qpsk_symb.shape)
+
 
 # Serial to 4 parallel output
 s_to_p_out = np.reshape(qpsk_symb, (4, Nbit // 8))
-#print("Data 2 shape = ", s_to_p_out.shape)
+#print("Data s_p = ", s_to_p_out.round(3))
+print("Data s_p shape = ", s_to_p_out.shape)
 
 ifft_data = np.array(fft.ifft2(s_to_p_out)) # IFFT of s_to_p_out
 
 # Parallel to serial output
 ifft_out = np.array(ifft_data).flatten()
+print("IFFT output shape = ", ifft_out.shape)
 
 print("Bit rate = {0} bits/second".format(R_s * np.log2(M)))
 print("Symbol rate = {0} symbols/second".format(R_s))
@@ -126,13 +133,16 @@ awgn = komm.AWGNChannel(snr=5, signal_power='measured')
 rx_signal = awgn(ifft_out); np.round(rx_signal, 6) # Add AWGN noise to the data
 
 # Serial to 4 parallel output
+print("RX = ", rx_signal.round(3))
 rx_s_to_p_out = np.reshape(rx_signal, (4, Nbit // 8))
+print("RX s_p shape = ", rx_s_to_p_out.shape)
 
 # FFT of rx_data_2
 rx_fft = np.array(fft.fft2(rx_s_to_p_out)) 
 
 # 4 channel parallel to serial
 rx_fft_p_to_s = np.array(rx_fft).flatten()
+print("RX FFT p_s shape = ", rx_fft_p_to_s.shape)
 
 # Demodulate the received signal
 rx_bit = psk.demodulate(rx_fft_p_to_s)
