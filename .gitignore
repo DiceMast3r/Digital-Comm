@@ -10,6 +10,7 @@
 *.docx
 *.gif
 *.m
+*.wav
 
 C_KMUTNB/test.c
 HW_1/__pycache__/Extra_w.cpython-312.pyc
