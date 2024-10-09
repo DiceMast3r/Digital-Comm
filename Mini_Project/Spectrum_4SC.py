@@ -74,13 +74,13 @@ f_sc = ComputeSCFreq(f_1, M, R_s)
 
 np.random.seed(6)
 data = np.random.randint(0, 2, Nbit)
-print("Data = ", data)
+#print("Data = ", data)
 print("Data shape = ", data.shape)
 
 # QPSK modulation
 psk = komm.PSKModulation(M, phase_offset=np.pi/4)
 qpsk_symb = psk.modulate(data)
-print("QPSK symbols = ", qpsk_symb.round(3))
+#print("QPSK symbols = ", qpsk_symb.round(3))
 print("QPSK symbols shape = ", qpsk_symb.shape)
 
 
@@ -107,7 +107,7 @@ sc = s_to_p_out[:4]
 sig = []
 for i in range(4):
     sig.append(SymbolToWave(sc[i], f_sc[i], t_symbol))
-
+    
 t_total = np.linspace(0, len(qpsk_symb) * T, len(sig) // 4, endpoint=False)
 
 # Compute the spectrum of the modulated signal
@@ -133,7 +133,7 @@ awgn = komm.AWGNChannel(snr=5, signal_power='measured')
 rx_signal = awgn(ifft_out); np.round(rx_signal, 6) # Add AWGN noise to the data
 
 # Serial to 4 parallel output
-print("RX = ", rx_signal.round(3))
+#print("RX = ", rx_signal.round(3))
 rx_s_to_p_out = np.reshape(rx_signal, (4, Nbit // 8))
 print("RX s_p shape = ", rx_s_to_p_out.shape)
 

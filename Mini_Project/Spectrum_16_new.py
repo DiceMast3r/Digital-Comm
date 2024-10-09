@@ -63,7 +63,7 @@ def plot_constellation(psk):
 
 # Parameters
 M = 16  # QPSK modulation
-Nsymb = 1000 * (16) # must be a multiple of 16
+Nsymb = 16 * (5) # * Change number in parentheses *
 Nbit = Nsymb * 4 
 f_1 = 5000 # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
@@ -75,11 +75,14 @@ f_sc = ComputeSCFreq(f_1, M, R_s)
 
 np.random.seed(6)
 data = np.random.randint(0, 2, Nbit)
+while len(data) % 64 != 0:
+    data = np.insert(data, 0, 0)
+    Nbit = len(data)
 
 # QPSK modulation
 psk = komm.PSKModulation(M)
 symb = psk.modulate(data)
-plot_constellation(psk)
+#plot_constellation(psk)
 
 # Serial to 16 parallel output
 symb_s_to_p = np.reshape(symb, (16, Nbit // 64))
@@ -103,7 +106,20 @@ sig = []
 for i in range(16):
     sig.append(SymbolToWave(sc[i], f_sc[i], t_symbol))
 
-t_total = np.linspace(0, len(symb) * T, len(sig) // 16, endpoint=False)
+sig = np.array(sig)
+t_total = np.linspace(0, len(symb) * T, len(sig[0]), endpoint=False)
+sig_sum = np.sum(sig, axis=0)
+
+plt.figure(figsize=(10, 4))
+for i in range(16):
+    plt.plot(t_total, sig[i], label=f"Subcarrier {i+1}")
+plt.plot(t_total, sig_sum, label="Sum of Subcarriers", color='purple', linestyle='--')
+plt.title("Modulated Signal")
+plt.xlabel("Time (s)")
+plt.ylabel("Amplitude")
+plt.grid(True)
+plt.legend()
+plt.show()
 
 # Compute the spectrum of the modulated signal
 sig_fft = []
