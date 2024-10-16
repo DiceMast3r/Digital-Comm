@@ -4,7 +4,7 @@ import komm
 import scipy.fft as fft
 
 def SymbolToWave(symb, fc, t_symbol):
-    # Generate the PSK signal for each symbol and concatenate
+    # Generate the QPSK signal for each symbol and concatenate
     qpsk_signal = np.array([])  # Empty array to store the entire signal
 
     for symbol in symb:
@@ -55,16 +55,15 @@ def plot_constellation(psk):
     # Iterate over each symbol in the constellation
     for i, symb in enumerate(psk.constellation):
         gray_code = int_to_gray(i)  # Get the Gray code for the index
-        plt.text(symb.real - 0.05, symb.imag + 0.05, f"{gray_code:04b}")  # Display Gray code as binary
+        plt.text(symb.real - 0.05, symb.imag + 0.05, f"{gray_code:02b}")  # Display Gray code as binary
     
-    plt.title('16-PSK Constellation')
+    plt.title('QPSK Constellation')
     plt.grid(True)
     plt.show()
 
 # Parameters
-M = 16  # QPSK modulation
-Nsymb = 16 * (1024) # * Change number in parentheses *
-Nbit = Nsymb * 4 
+M = 4  # QPSK modulation
+Nbit = 8 * (1000) # * Change number in parentheses *
 f_1 = 5000 # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
 T = 2e-3  # Symbol duration (seconds)
@@ -75,43 +74,53 @@ f_sc = ComputeSCFreq(f_1, M, R_s)
 
 np.random.seed(6)
 data = np.random.randint(0, 2, Nbit)
-while len(data) % 64 != 0:
+# check if data is a multiple of 8 if not, add zeros to make it a multiple of 8
+while len(data) % 8 != 0:
+    # add zero to the front of the data
     data = np.insert(data, 0, 0)
     Nbit = len(data)
+print("Data = ", data)
+print("Data shape = ", data.shape)
+
 
 # QPSK modulation
-psk = komm.PSKModulation(M)
-symb = psk.modulate(data)
-#plot_constellation(psk)
+qam = komm.QAModulation(M)
+qpsk_symb = qam.modulate(data)
+#print("QPSK symbols = ", qpsk_symb.round(3))
+print("QPSK symbols shape = ", qpsk_symb.shape)
 
-# Serial to 16 parallel output
-symb_s_to_p = np.reshape(symb, (16, Nbit // 64))
 
-# IFFT of symb_s_to_p
-ifft_data = np.array(fft.ifft2(symb_s_to_p))
+# Serial to 4 parallel output
+s_to_p_out = np.reshape(qpsk_symb, (4, Nbit // 8))
+#print("Data s_p = ", s_to_p_out.round(3))
+print("Data s_p shape = ", s_to_p_out.shape)
 
-# 16 Parallel to serial 
-ifft_p_to_s_out = np.array(ifft_data).flatten()
+ifft_data = np.array(fft.ifft2(s_to_p_out)) # IFFT of s_to_p_out
+
+# Parallel to serial output
+ifft_out = np.array(ifft_data).flatten()
+print("IFFT output shape = ", ifft_out.shape)
 
 print("Bit rate = {0} bits/second".format(R_s * np.log2(M)))
 print("Symbol rate = {0} symbols/second".format(R_s))
 print("Number of subcarriers: {0}".format(M))
 print(f"Frequency of subcarrier: {ComputeSCFreq(f_1, M, R_s)} Hz")
 
-# Store symbols in a list of subcarriers
-sc = symb_s_to_p[:16]
+# Extract the symbols to send to 4 subcarriers
+sc = s_to_p_out[:4]
 
 # Generate the QPSK signal for each symbol and concatenate
 sig = []
-for i in range(16):
+for i in range(4):
     sig.append(SymbolToWave(sc[i], f_sc[i], t_symbol))
-
+    
 sig = np.array(sig)
-t_total = np.linspace(0, len(symb) * T, len(sig[0]), endpoint=False)
-sig_sum = np.sum(sig, axis=0)
+t_total = np.linspace(0, len(qpsk_symb) * T, len(sig[0]), endpoint=False)
 
+
+sig_sum = np.sum(sig, axis=0)
 plt.figure(figsize=(10, 4))
-for i in range(16):
+for i in range(4):
     plt.plot(t_total, sig[i], label=f"Subcarrier {i+1}")
 plt.plot(t_total, sig_sum, label="Sum of Subcarriers", color='purple', linestyle='--')
 plt.title("Modulated Signal")
@@ -121,17 +130,27 @@ plt.grid(True)
 plt.legend()
 plt.show()
 
+"""sig_sum_fft, freq_sum = ComputeSpectrum(sig_sum, fs)
+plt.figure(figsize=(10, 4))
+plt.plot(freq_sum, np.abs(sig_sum_fft))
+plt.title("Sum Signal Spectrum")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Magnitude")
+plt.grid(True)
+plt.show()"""
+
+
 # Compute the spectrum of the modulated signal
 sig_fft = []
 freq = []
-for i in range(16):
+for i in range(4):
     sig_fft_i, freq_i = ComputeSpectrum(sig[i], fs)
     sig_fft.append(sig_fft_i)
     freq.append(freq_i)
 
 # Plot the spectrum of the modulated signal
 plt.figure(figsize=(10, 4))
-for i in range(16):
+for i in range(4):
     plt.plot(freq[i], np.abs(sig_fft[i]))
 plt.title("Modulated Signal Spectrum")
 plt.xlabel("Frequency (Hz)")
@@ -139,22 +158,24 @@ plt.ylabel("Magnitude")
 plt.grid(True)
 plt.show()
 
-
 # Create a AWGN channel
-awgn = komm.AWGNChannel(snr=10, signal_power='measured')
-rx_signal = awgn(ifft_p_to_s_out); np.round(rx_signal, 6) # Add AWGN noise to the data
+awgn = komm.AWGNChannel(snr=10, signal_power='measured') 
+rx_signal = awgn(ifft_out); np.round(rx_signal, 6) # Add AWGN noise to the data
 
-# Serial to 16 Parallel output
-rx_s_to_p_out = np.reshape(rx_signal, (16, Nbit // 64))
+# Serial to 4 parallel output
+#print("RX = ", rx_signal.round(3))
+rx_s_to_p_out = np.reshape(rx_signal, (4, Nbit // 8))
+print("RX s_p shape = ", rx_s_to_p_out.shape)
 
 # FFT of rx_data_2
-rx_fft = np.array(fft.fft2(rx_s_to_p_out))
+rx_fft = np.array(fft.fft2(rx_s_to_p_out)) 
 
-# 16 Parallel to serial
-rx_fft_p_to_s_out = np.array(rx_fft).flatten()
+# 4 channel parallel to serial
+rx_fft_p_to_s = np.array(rx_fft).flatten()
+print("RX FFT p_s shape = ", rx_fft_p_to_s.shape)
 
 # Demodulate the received signal
-rx_bit = psk.demodulate(rx_fft_p_to_s_out)
+rx_bit = qam.demodulate(rx_fft_p_to_s)
 
 print("Total bits: {0}, Error bits: {1}".format(Nbit, np.sum(rx_bit != data)))
 print(f"Bit Error Rate: {ComputeBER(data, rx_bit, Nbit):.4f}")

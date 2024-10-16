@@ -63,7 +63,7 @@ def plot_constellation(psk):
 
 # Parameters
 M = 16  # QPSK modulation
-Nsymb = 16 * (1024) # * Change number in parentheses *
+Nsymb = 16 * (1) # * Change number in parentheses *
 Nbit = Nsymb * 4 
 f_1 = 5000 # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
@@ -80,8 +80,8 @@ while len(data) % 64 != 0:
     Nbit = len(data)
 
 # QPSK modulation
-psk = komm.PSKModulation(M)
-symb = psk.modulate(data)
+qam = komm.PSKModulation(M)
+symb = qam.modulate(data)
 #plot_constellation(psk)
 
 # Serial to 16 parallel output
@@ -154,7 +154,7 @@ rx_fft = np.array(fft.fft2(rx_s_to_p_out))
 rx_fft_p_to_s_out = np.array(rx_fft).flatten()
 
 # Demodulate the received signal
-rx_bit = psk.demodulate(rx_fft_p_to_s_out)
+rx_bit = qam.demodulate(rx_fft_p_to_s_out)
 
 print("Total bits: {0}, Error bits: {1}".format(Nbit, np.sum(rx_bit != data)))
 print(f"Bit Error Rate: {ComputeBER(data, rx_bit, Nbit):.4f}")

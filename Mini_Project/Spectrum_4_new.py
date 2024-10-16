@@ -63,7 +63,7 @@ def plot_constellation(psk):
 
 # Parameters
 M = 4  # QPSK modulation
-Nbit = 16 * (1) # * Change number in parentheses *
+Nbit = 8 * (1024) # * Change number in parentheses *
 f_1 = 5000 # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
 T = 2e-3  # Symbol duration (seconds)
@@ -130,6 +130,15 @@ plt.grid(True)
 plt.legend()
 plt.show()
 
+"""sig_sum_fft, freq_sum = ComputeSpectrum(sig_sum, fs)
+plt.figure(figsize=(10, 4))
+plt.plot(freq_sum, np.abs(sig_sum_fft))
+plt.title("Sum Signal Spectrum")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Magnitude")
+plt.grid(True)
+plt.show()"""
+
 
 # Compute the spectrum of the modulated signal
 sig_fft = []
@@ -164,6 +173,9 @@ rx_fft = np.array(fft.fft2(rx_s_to_p_out))
 # 4 channel parallel to serial
 rx_fft_p_to_s = np.array(rx_fft).flatten()
 print("RX FFT p_s shape = ", rx_fft_p_to_s.shape)
+plt.figure(figsize=(10, 4))
+plt.plot(rx_fft_p_to_s)
+plt.show()
 
 # Demodulate the received signal
 rx_bit = psk.demodulate(rx_fft_p_to_s)

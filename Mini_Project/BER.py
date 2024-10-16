@@ -13,7 +13,7 @@ def BERCurve_QPSK(snr_in):
 
     # Parameters
     M = 4  # QPSK modulation
-    Nsymb = 5000 # Number of symbols
+    Nsymb = 50000 # Number of symbols
     Nbit = Nsymb * 2 
     
     np.random.seed(6)
@@ -56,8 +56,8 @@ def BERCurve_16PSK(snr_in):
         return ber
 
     # Parameters
-    M = 16  # QPSK modulation
-    Nsymb = 16 * 5000 # must be a multiple of 16
+    M = 16  # 16PSK modulation
+    Nsymb = 16 * 50000 # must be a multiple of 16
     Nbit = Nsymb * 4 
     
     np.random.seed(6)
@@ -101,8 +101,8 @@ def BERCurve_8PSK(snr_in):
         return ber
 
     # Parameters
-    M = 8  # QPSK modulation
-    Nsymb = 8 * 5000 # must be a multiple of 8
+    M = 8  # 8PSK modulation
+    Nsymb = 8 * 50000 # must be a multiple of 8
     Nbit = Nsymb * 3 
     
     np.random.seed(6)
@@ -142,11 +142,11 @@ def BERCurve_8PSK(snr_in):
 # Start the timer
 start_time = time.time()
 
-snr = np.arange(0.1, 15, 0.1)
+snr = np.arange(-2, 15, 0.1)
 snr_linear = 10 ** (snr / 10)
-ber_qpsk = [BERCurve_QPSK(snr_in) for snr_in in snr_linear]
+#ber_qpsk = [BERCurve_QPSK(snr_in) for snr_in in snr_linear]
 ber_8psk = [BERCurve_8PSK(snr_in) for snr_in in snr_linear]
-ber_16psk = [BERCurve_16PSK(snr_in) for snr_in in snr_linear]
+#ber_16psk = [BERCurve_16PSK(snr_in) for snr_in in snr_linear]
 
 # End the timer
 end_time = time.time()
@@ -156,9 +156,9 @@ elapsed_time = end_time - start_time
 print("Program execution time: {0:.3f} seconds".format(elapsed_time))
 
 plt.figure(figsize=(10, 4))
-plt.semilogy(snr, ber_qpsk, label='QPSK (4 subcarriers)')
+#plt.semilogy(snr, ber_qpsk, label='QPSK (4 subcarriers)')
 plt.semilogy(snr, ber_8psk, label='8-PSK (8 subcarriers)')
-plt.semilogy(snr, ber_16psk, label='16-PSK (16 subcarriers)')
+#plt.semilogy(snr, ber_16psk, label='16-PSK (16 subcarriers)')
 plt.title("BER Curve")
 plt.xlabel("SNR (dB)")
 plt.ylabel("BER")
