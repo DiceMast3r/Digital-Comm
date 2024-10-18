@@ -99,7 +99,7 @@ print("Number of subcarriers: {0}".format(M))
 print(f"Frequency of subcarrier: {ComputeSCFreq(f_1, M, R_s)} Hz")
 
 # Store symbols in a list of subcarriers
-sc = symb_s_to_p[:8]
+sc = symb_s_to_p
 
 # Generate the QPSK signal for each symbol and concatenate
 sig = []
