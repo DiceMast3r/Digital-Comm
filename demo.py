@@ -1,85 +1,124 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# รับค่า student ID สองค่า
-#student_ID1 = int(input('Enter your first student ID: '))
-#student_ID2 = int(input('Enter your second student ID: '))
+# การกำหนดพารามิเตอร์
+nbit = 10000  # จำนวนบิตข้อมูล
+nsamp = 8    # จำนวนตัวอย่างต่อสัญญาณหนึ่งตัวอย่าง (oversampling factor)
+M = 4        # ระดับของ PAM
+Es = 1       # พลังงานเฉลี่ยของสัญญาณ
 
-student_ID1 = 65010426
-student_ID2 = 65010434
+# การสุ่มบิตข้อมูล
+data_bits = np.random.randint(0, M, nbit)
 
-# คำนวณ A1 และ A2 โดยเอาหลักสุดท้ายของแต่ละ student ID
-A1 = student_ID1 % 10
-A2 = student_ID2 % 10
+# การแมปบิตไปเป็นสัญญาณ 4 ระดับ (ระดับของ PAM: -3, -1, 1, 3)
+pam_symbols = 2 * data_bits - (M - 1)
 
-# ผลบวกของหลักสุดท้ายจาก student ID ทั้งสองค่า (x)
-x = float(str(A1) + str(A2)) / 100  # เช่น 1.23 ถ้า A1=2, A2=3
+# การสร้างสัญญาณ 4-PAM (Modulation)
+pam_signal = np.repeat(pam_symbols, nsamp)
 
-# ตั้งค่าเริ่มต้น
-Nbits = 1000000  # จำนวนบิตที่มากขึ้น
-Nsamp = 10  # จำนวนตัวอย่างต่อบิต
-np.random.seed(30)
-a = np.random.randint(0, 2, Nbits)  # สุ่มบิต
-b = 2 * a - 1  # แปลงบิตจาก {0, 1} เป็น {-1, 1}
-Eb = 10  # พลังงานต่อบิต
+# การเพิ่ม AWGN เข้าไปในสัญญาณ
+SNR_dB = 10  # อัตราส่วนสัญญาณต่อเสียงรบกวน (Signal-to-Noise Ratio) ใน dB
+SNR_linear = 10**(SNR_dB/10)
+noise_std = np.sqrt(Es / (2 * SNR_linear))  # คำนวณค่าเบี่ยงเบนมาตรฐานของ AWGN
+awgn_noise = noise_std * np.random.normal(0, 10, len(pam_signal))
 
-# สร้างค่า SNRdB_log ตั้งแต่ 1.23 ถึง 9.23
-#SNRdB_log = np.array([y + x for y in range(1, 10)])  # ผลลัพธ์จะเป็น [1.23, 2.23, ..., 9.23]
-SNRdB_log = np.arange(1.23, 10.23, 1)  # ผลลัพธ์จะเป็น [1.23, 2.23, ..., 9.23]
-SNRdB_log = 10 ** (SNRdB_log / 10)  # แปลง dB เป็น linear scale
+received_signal = pam_signal + awgn_noise  # สัญญาณที่ได้รับพร้อม AWGN
 
-def calculate_ber(snr_dB):
-    # คำนวณค่า sigma จาก SNR
-    sigma = np.sqrt(Eb / (2 * (10**(snr_dB / 10))))
-    
-    # Generate Differential NRZ Modulated signals
-    x_t = []
-    current_level = 1  # เริ่มต้นที่ 1
-    for i in range(Nbits):
-        if a[i] == 1:
-            current_level *= -1  # พลิกสัญญาณเมื่อเจอบิต 1
-        x_t.extend([current_level] * Nsamp)
+# การทำ Demodulation
+# ทำการ Decimation โดยการเฉลี่ยตัวอย่างในแต่ละช่วง (แต่ละสัญญาณ)
+received_symbols = received_signal.reshape(-1, nsamp).mean(axis=1)
 
-    # Generate AWGN
-    mu = 0
-    n_t = np.random.normal(mu, sigma, Nbits * Nsamp)
+# การตัดสินใจ (Decision) ว่าสัญญาณที่ได้รับเป็นค่าใดใน PAM (ระดับ -3, -1, 1, 3)
+demod_data_bits = np.zeros_like(received_symbols)
 
-    # Received signals
-    r_t = np.array(x_t) + n_t
+demod_data_bits[received_symbols >= 2] = 3
+demod_data_bits[np.logical_and(received_symbols >= 0, received_symbols < 2)] = 2
+demod_data_bits[np.logical_and(received_symbols >= -2, received_symbols < 0)] = 1
+demod_data_bits[received_symbols < -2] = 0
 
-    # Correlator
-    s_DNRZ = np.array([1] * Nsamp)  # for D-NRZ
-    z = []
+# การคำนวณ Bit Error Rate (BER)
+bit_errors = np.sum(data_bits != demod_data_bits)
+BER = bit_errors / nbit
 
-    for i in range(Nbits):
-        z_t = np.multiply(r_t[i * Nsamp:(i + 1) * Nsamp], s_DNRZ)
-        z_t_out = sum(z_t)
-        z.append(z_t_out)
+# การแสดงผลลัพธ์
+print(f'Bit Error Rate (BER): {BER:.2f}')
 
-    # Make decision, compare z with 0
-    a_hat = [1 if zdata > 0 else 0 for zdata in z]
+# พล็อต data bit และข้อมูลอื่นๆ
 
-    # Calculate error
-    err_num = sum(a != a_hat)
+plt.figure(figsize=(12, 10))
 
-    # Calculate BER
-    ber = err_num / Nbits
-    return ber
+# พล็อตบิตข้อมูลที่สุ่มได้
+plt.subplot(4, 1, 1)
+plt.plot(data_bits[:100], 'o-', label="Data Bits")
+plt.title('Random Data Bits')
+plt.xlabel('Bit Index')
+plt.ylabel('Bit Value')
+plt.grid(True)
+plt.legend()
 
-# Calculate BER for each SNR value for D-NRZ
-a_BER_DNRZ = [calculate_ber(snr) for snr in SNRdB_log]
+# พล็อตสัญญาณที่ถูกส่ง (Transmitted 4-PAM Signal)
+plt.subplot(4, 1, 2)
+plt.plot(pam_signal[:100], label='Transmitted 4-PAM Signal', drawstyle='steps-post')
+plt.title('Transmitted 4-PAM Signal')
+plt.xlabel('Samples')
+plt.ylabel('Amplitude')
+plt.grid(True)
+plt.legend()
 
-# Print BER values
-for snr, ber in zip(SNRdB_log, a_BER_DNRZ):
-    print(f"SNR (dB): {snr}, BER: {ber}")
+# พล็อตสัญญาณที่ได้รับ (Received Signal with AWGN)
+plt.subplot(4, 1, 3)
+plt.plot(received_signal[:100], label='Received Signal (with AWGN)', alpha=0.7)
+plt.title('Received Signal (with AWGN)')
+plt.xlabel('Samples')
+plt.ylabel('Amplitude')
+plt.grid(True)
+plt.legend()
 
-# Plot the results
-plt.figure(figsize=(10, 6))
-plt.semilogy(SNRdB_log, a_BER_DNRZ, marker='o', label='D-NRZ')
+# พล็อตสัญญาณหลังจากการทำ demodulation
+plt.subplot(4, 1, 4)
+plt.plot(demod_data_bits[:100], 'o-', label='Demodulated Symbols', drawstyle='steps-post')
+plt.title('Demodulated 4-PAM Symbols')
+plt.xlabel('Symbol Index')
+plt.ylabel('Symbol Value')
+plt.grid(True)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+# การสร้างกราฟ BER เทียบกับ SNR
+SNR_dB_values = np.arange(-10, 10, 1)  # SNR ใน dB ตั้งแต่ -10 ถึง 10
+BER_values = []
+
+for SNR_dB in SNR_dB_values:
+    SNR_linear = 10 ** (SNR_dB / 10)
+    noise_std = np.sqrt((1 / 2) * (10) * (10 ** (-SNR_dB / 10)))  # คำนวณค่าเบี่ยงเบนมาตรฐานของ AWGN
+    #awgn_noise = noise_std * np.random.normal(0, 1, len(pam_signal))
+    awgn_noise = np.random.normal(0, noise_std, len(pam_signal))
+
+    received_signal = pam_signal + awgn_noise  # สัญญาณที่ได้รับพร้อม AWGN
+
+    # การทำ Demodulation
+    received_symbols = received_signal.reshape(-1, nsamp).mean(axis=1)
+
+    demod_data_bits = np.zeros_like(received_symbols)
+    demod_data_bits[received_symbols >= 2] = 3
+    demod_data_bits[np.logical_and(received_symbols >= 0, received_symbols < 2)] = 2
+    demod_data_bits[np.logical_and(received_symbols >= -2, received_symbols < 0)] = 1
+    demod_data_bits[received_symbols < -2] = 0
+
+    # การคำนวณ Bit Error Rate (BER)
+    bit_errors = np.sum(data_bits != demod_data_bits)
+    BER = bit_errors / nbit
+    BER_values.append(BER)
+
+# พล็อตกราฟ BER เทียบกับ SNR
+plt.figure(figsize=(8, 6))
+plt.semilogy(SNR_dB_values, BER_values, 'o-', label='BER vs SNR for 4-PAM')
+#plt.yscale('log')  # ใช้ logarithmic scale บนแกน Y
+plt.title('BER vs SNR for 4-PAM with AWGN')
 plt.xlabel('SNR (dB)')
 plt.ylabel('Bit Error Rate (BER)')
+plt.grid(True)
 plt.legend()
-plt.grid(True, which='both')
-plt.title('BER vs. SNR for D-NRZ')
-
 plt.show()

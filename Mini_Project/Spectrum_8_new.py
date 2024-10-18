@@ -5,7 +5,7 @@ import scipy.fft as fft
 
 def SymbolToWave(symb, fc, t_symbol):
     # Generate the QPSK signal for each symbol and concatenate
-    qpsk_signal = np.array([])  # Empty array to store the entire signal
+    psk_signal = np.array([])  # Empty array to store the entire signal
 
     for symbol in symb:
         # Extract I and Q components
@@ -20,9 +20,9 @@ def SymbolToWave(symb, fc, t_symbol):
         symbol_signal = carrier_I - carrier_Q
     
         # Append to the overall QPSK signal
-        qpsk_signal = np.concatenate((qpsk_signal, symbol_signal))
+        psk_signal = np.concatenate((psk_signal, symbol_signal))
         
-    return qpsk_signal
+    return psk_signal
 
 def ComputeSpectrum(sig, fs):
     # Compute the FFT of the signal
@@ -62,7 +62,7 @@ def plot_constellation(psk):
     plt.show()
 
 # Parameters
-M = 8  # QPSK modulation
+M = 8  # 8PSK modulation
 Nsymb = 8 * (1024) # * Change number in parentheses *
 Nbit = Nsymb * 3 
 f_1 = 5000 # 1st Carrier frequency (Hz)
@@ -79,7 +79,7 @@ while len(data) % 24 != 0:
     data = np.insert(data, 0, 0)
     Nbit = len(data)
 
-# QPSK modulation
+# 8PSK modulation
 psk = komm.PSKModulation(M)
 symb = psk.modulate(data)
 #plot_constellation(psk)

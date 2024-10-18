@@ -5,7 +5,7 @@ import scipy.fft as fft
 
 def SymbolToWave(symb, fc, t_symbol):
     # Generate the QPSK signal for each symbol and concatenate
-    qpsk_signal = np.array([])  # Empty array to store the entire signal
+    psk_signal = np.array([])  # Empty array to store the entire signal
 
     for symbol in symb:
         # Extract I and Q components
@@ -20,9 +20,9 @@ def SymbolToWave(symb, fc, t_symbol):
         symbol_signal = carrier_I - carrier_Q
     
         # Append to the overall QPSK signal
-        qpsk_signal = np.concatenate((qpsk_signal, symbol_signal))
+        psk_signal = np.concatenate((psk_signal, symbol_signal))
         
-    return qpsk_signal
+    return psk_signal
 
 def ComputeSpectrum(sig, fs):
     # Compute the FFT of the signal
@@ -173,9 +173,6 @@ rx_fft = np.array(fft.fft2(rx_s_to_p_out))
 # 4 channel parallel to serial
 rx_fft_p_to_s = np.array(rx_fft).flatten()
 print("RX FFT p_s shape = ", rx_fft_p_to_s.shape)
-plt.figure(figsize=(10, 4))
-plt.plot(rx_fft_p_to_s)
-plt.show()
 
 # Demodulate the received signal
 rx_bit = psk.demodulate(rx_fft_p_to_s)
