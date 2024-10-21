@@ -9,7 +9,7 @@ from Module_SC import main_4SC, main_8SC, main_16SC
 def image_to_binary_bits(image_url, mode):
     # Download the image
     response = requests.get(image_url)
-    image = Image.open(BytesIO(response.content)).convert(mode)  # Convert to grayscale
+    image = Image.open(BytesIO(response.content)).convert(mode) # Convert to grayscale or RGB
     # Convert image to numpy array
     image_array = np.array(image)
     # Flatten the array and convert to binary bits

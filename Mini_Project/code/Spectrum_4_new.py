@@ -72,7 +72,7 @@ def plot_constellation(psk):
 
 # Parameters
 M = 4  # QPSK modulation
-Nsym = 4 * (1)  # * Change number in parentheses *
+Nsym = 4 * (1000)  # * Change number in parentheses *
 Nbit = Nsym * 2
 f_1 = 5000  # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
