@@ -63,7 +63,7 @@ def plot_constellation(psk):
 
 # Parameters
 M = 16  # 16PSK modulation
-Nsymb = 16 * (1024) # * Change number in parentheses *
+Nsymb = 16 * (5) # * Change number in parentheses *
 Nbit = Nsymb * 4 
 f_1 = 5000 # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
@@ -73,7 +73,7 @@ num_samples = int(fs * T)  # Number of samples per symbol
 t_symbol = np.linspace(0, T, num_samples, endpoint=False)  # Time vector for one symbol
 f_sc = ComputeSCFreq(f_1, M, R_s)
 
-np.random.seed(6)
+np.random.seed(40)
 data = np.random.randint(0, 2, Nbit)
 while len(data) % 64 != 0:
     data = np.insert(data, 0, 0)
@@ -101,7 +101,7 @@ print(f"Frequency of subcarrier: {ComputeSCFreq(f_1, M, R_s)} Hz")
 # Store symbols in a list of subcarriers
 sc = symb_s_to_p
 
-# Generate the QPSK signal for each symbol and concatenate
+# Generate the PSK signal for each symbol and concatenate
 sig = []
 for i in range(16):
     sig.append(SymbolToWave(sc[i], f_sc[i], t_symbol))
@@ -114,7 +114,7 @@ plt.figure(figsize=(10, 4))
 for i in range(16):
     plt.plot(t_total, sig[i], label=f"Subcarrier {i+1}")
 plt.plot(t_total, sig_sum, label="Sum of Subcarriers", color='purple', linestyle='--')
-plt.title("Modulated Signal")
+plt.title("Sum of Subcarriers signal (16 subcarriers)")
 plt.xlabel("Time (s)")
 plt.ylabel("Amplitude")
 plt.grid(True)
@@ -133,7 +133,7 @@ for i in range(16):
 plt.figure(figsize=(10, 4))
 for i in range(16):
     plt.plot(freq[i], np.abs(sig_fft[i]))
-plt.title("Modulated Signal Spectrum")
+plt.title("OFDM Signal Spectrum (16 subcarriers)")
 plt.xlabel("Frequency (Hz)")
 plt.ylabel("Magnitude")
 plt.grid(True)

@@ -37,7 +37,7 @@ def reconstruct_image(received_signal, image_size, mode):
 # Parameters
 image_url = "https://static.wikia.nocookie.net/witchers/images/4/4c/Haerin_OMG_Concept_Photo_%283%29.jpg/revision/latest/scale-to-width-down/512?cb=20230102104157"
 color_mode = "RGB"
-snr = 5
+snr = 8
 
 
 # Steps
@@ -61,20 +61,19 @@ print(f"Image size: {image_size}")
 plt.figure(figsize=(5, 5))
 plt.imshow(original_image)
 plt.title("Original Image")
-plt.show()
 
 plt.figure()
 plt.imshow(recon_img_mod_4SC)
-plt.title("Reconstructed Modulated Image 4SC")
+plt.title("Reconstructed Image (4 Subcarriers)")
 #plt.show()
 
 plt.figure()
 plt.imshow(recon_img_mod_16SC)
-plt.title("Reconstructed Modulated Image 16SC")
+plt.title("Reconstructed Image (16 Subcarriers)")
 
 plt.figure()
 plt.imshow(recon_img_mod_8SC)
-plt.title("Reconstructed Modulated Image 8SC")
+plt.title("Reconstructed Image (8 Subcarriers)")
 plt.show()
 
 

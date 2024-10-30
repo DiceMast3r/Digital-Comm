@@ -3,7 +3,7 @@ import matplotlib.pyplot as plot
 import math
 import scipy.fft as fft
 
-Nsymb = 12
+Nsymb = 1200
 Nsamp = 20
 M = 4
 
@@ -155,9 +155,9 @@ for zdata in z_Q:
   else:
     a_Q_hat.append(0)
 
-print("estimated data")
+"""print("estimated data")
 print("a_I_hat = ", a_I_hat)
-print("a_Q_hat = ", a_Q_hat)
+print("a_Q_hat = ", a_Q_hat)"""
 
 print("transmitted data")
 print('a_I = ', a_I)
