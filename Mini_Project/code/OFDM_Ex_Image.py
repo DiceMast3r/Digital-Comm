@@ -1,3 +1,4 @@
+import os
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
@@ -37,13 +38,12 @@ def reconstruct_image(received_signal, image_size, mode):
 # Parameters
 image_url = "https://static.wikia.nocookie.net/witchers/images/4/4c/Haerin_OMG_Concept_Photo_%283%29.jpg/revision/latest/scale-to-width-down/512?cb=20230102104157"
 color_mode = "RGB"
-snr = 8
+snr = 4
 
 
 # Steps
-original_image = Image.open(BytesIO(requests.get(image_url).content))
-binary_bits, image_size = image_to_binary_bits(image_url, mode=color_mode)
-recon_img = reconstruct_image(binary_bits, image_size, mode=color_mode)
+original_image = Image.open(BytesIO(requests.get(image_url).content)) # Load the original image
+binary_bits, image_size = image_to_binary_bits(image_url, mode=color_mode) # Convert image to binary bits
 
 mod_bit_4SC = main_4SC(binary_bits, snr)
 mod_bit_8SC = main_8SC(binary_bits, snr)
@@ -53,6 +53,7 @@ print(f"Bit shape of modulated image: {mod_bit_4SC.shape}")
 recon_img_mod_4SC = reconstruct_image(mod_bit_4SC, image_size, mode=color_mode)
 recon_img_mod_8SC = reconstruct_image(mod_bit_8SC, image_size, mode=color_mode)
 recon_img_mod_16SC = reconstruct_image(mod_bit_16SC, image_size, mode=color_mode)
+
 
 print(f"Bit length of image: {len(binary_bits)}")
 print(f"Bit shape of image: {binary_bits.shape}")
@@ -64,16 +65,26 @@ plt.title("Original Image")
 
 plt.figure()
 plt.imshow(recon_img_mod_4SC)
-plt.title("Reconstructed Image (4 Subcarriers)")
+plt.title(f"Reconstructed Image (4 Subcarriers) with SNR = {snr} dB")
 #plt.show()
 
 plt.figure()
 plt.imshow(recon_img_mod_16SC)
-plt.title("Reconstructed Image (16 Subcarriers)")
+plt.title(f"Reconstructed Image (16 Subcarriers) with SNR = {snr} dB")
 
 plt.figure()
 plt.imshow(recon_img_mod_8SC)
-plt.title("Reconstructed Image (8 Subcarriers)")
+plt.title(f"Reconstructed Image (8 Subcarriers) with SNR = {snr} dB")
 plt.show()
 
+# Save the reconstructed image to a file
+path_img = "F:/Digital Comm/Mini_Project/img"
+recon_img_mod_4SC = Image.fromarray(recon_img_mod_4SC)
+recon_img_mod_4SC.save(os.path.join(path_img, "reconstructed_image_4SC.jpg"))
+recon_img_mod_8SC = Image.fromarray(recon_img_mod_8SC)
+recon_img_mod_8SC.save(os.path.join(path_img, "reconstructed_image_8SC.jpg"))
+recon_img_mod_16SC = Image.fromarray(recon_img_mod_16SC)
+recon_img_mod_16SC.save(os.path.join(path_img, "reconstructed_image_16SC.jpg"))
+og_img = Image.fromarray(original_image)
+og_img.save(os.path.join(path_img, "original_image.jpg"))
 

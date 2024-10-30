@@ -9,7 +9,7 @@ def SymbolToWave(symb, fc, t_symbol):
 
     for symbol in symb:
         # Extract I and Q components
-        I = np.real(symbol)
+        I = np.real(symbol)  # noqa: E741
         Q = np.imag(symbol)
     
         # Generate the modulated carrier for the current symbol
@@ -63,7 +63,7 @@ def plot_constellation(psk):
 
 # Parameters
 M = 8  # 8PSK modulation
-Nsymb = 8 * (5) # * Change number in parentheses *
+Nsymb = 8 * (500) # * Change number in parentheses *
 Nbit = Nsymb * 3 
 f_1 = 5000 # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
@@ -142,7 +142,7 @@ plt.show()
 
 # Create a AWGN channel
 awgn = komm.AWGNChannel(snr=10, signal_power='measured')
-rx_signal = awgn(ifft_p_to_s_out); np.round(rx_signal, 6) # Add AWGN noise to the data
+rx_signal = awgn(ifft_p_to_s_out); np.round(rx_signal, 6) # Add AWGN noise to the data  # noqa: E702
 
 # Serial to 16 Parallel output
 rx_s_to_p_out = np.reshape(rx_signal, (8, Nbit // 24))

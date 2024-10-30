@@ -72,7 +72,7 @@ def plot_constellation(psk):
 
 # Parameters
 M = 4  # QPSK modulation
-Nsym = 4 * (100)  # * Change number in parentheses *
+Nsym = 4 * (1000)  # * Change number in parentheses *
 Nbit = Nsym * 2
 f_1 = 5000  # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
@@ -176,7 +176,6 @@ rx_signal = awgn(ifft_out)
 np.round(rx_signal, 6)  # Add AWGN noise to the data
 
 # Serial to 4 parallel output
-# print("RX = ", rx_signal.round(3))
 rx_s_to_p_out = np.reshape(rx_signal, (4, Nbit // 8))
 print("RX s_p shape = ", rx_s_to_p_out.shape)
 
