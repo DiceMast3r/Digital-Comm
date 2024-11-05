@@ -84,6 +84,14 @@ psk = komm.PSKModulation(M)
 symb = psk.modulate(data)
 #plot_constellation(psk)
 
+plt.figure(figsize=(10, 5))
+plt.scatter(symb.real, symb.imag, color='red')
+plt.title("8PSK Constellation (8 subcarriers)")
+plt.xlabel("I")
+plt.ylabel("Q")
+plt.grid(True)
+plt.show()
+
 # Serial to 16 parallel output
 symb_s_to_p = np.reshape(symb, (8, Nbit // 24))
 
@@ -141,7 +149,7 @@ plt.show()
 
 
 # Create a AWGN channel
-awgn = komm.AWGNChannel(snr=10, signal_power='measured')
+awgn = komm.AWGNChannel(snr=5, signal_power='measured')
 rx_signal = awgn(ifft_p_to_s_out); np.round(rx_signal, 6) # Add AWGN noise to the data  # noqa: E702
 
 # Serial to 16 Parallel output
@@ -152,6 +160,16 @@ rx_fft = np.array(fft.fft2(rx_s_to_p_out))
 
 # 16 Parallel to serial
 rx_fft_p_to_s_out = np.array(rx_fft).flatten()
+
+plt.figure(figsize=(10, 5))
+plt.scatter(rx_fft_p_to_s_out.real, rx_fft_p_to_s_out.imag, color='blue')
+plt.scatter(symb.real, symb.imag, color="red")
+plt.title("Received 8PSK Constellation (8 subcarriers)")
+plt.xlabel("I")
+plt.ylabel("Q")
+plt.grid(True)
+plt.show()
+
 
 # Demodulate the received signal
 rx_bit = psk.demodulate(rx_fft_p_to_s_out)

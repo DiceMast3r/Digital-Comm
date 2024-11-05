@@ -201,3 +201,54 @@ def main_16SC(data, snr_in):
     rx_bit = psk.demodulate(rx_fft_p_to_s)
 
     return rx_bit
+
+def main_BPSK(data, snr_in):
+    M = 2  # QPSK modulation
+    Nbit = len(data)
+    f_1 = 5000  # 1st Carrier frequency (Hz)
+    fs = f_1 * 10  # Sampling frequency (Hz)
+    T = 2e-3  # Symbol duration (seconds)
+    R_s = 1 / T  # Symbol rate (symbols/second)
+    num_samples = int(fs * T)  # Number of samples per symbol
+    t_symbol = np.linspace(
+        0, T, num_samples, endpoint=False
+    )  # Time vector for one symbol
+    f_sc = ComputeSCFreq(f_1, M, R_s)
+
+    data = np.array(data)
+    while len(data) % 2 != 0:
+        # add zero to the front of the data
+        data = np.insert(data, 0, 0)
+        Nbit = len(data)
+
+    # PSK modulation
+    psk = komm.PSKModulation(M)
+    qpsk_symb = psk.modulate(data)
+
+    # Serial to 4 parallel output
+    s_to_p_out = np.reshape(qpsk_symb, (2, Nbit // 2))
+
+    ifft_data = np.array(fft.ifft2(s_to_p_out))  # IFFT of s_to_p_out
+
+    # Parallel to serial output
+    ifft_out = np.array(ifft_data).flatten()
+
+    # Create a AWGN channel
+    awgn = komm.AWGNChannel(snr=snr_in, signal_power="measured")
+    rx_signal = awgn(ifft_out)
+    np.round(rx_signal, 6)  # Add AWGN noise to the data
+
+    # Serial to 4 parallel output
+    # print("RX = ", rx_signal.round(3))
+    rx_s_to_p_out = np.reshape(rx_signal, (2, Nbit // 2))
+
+    # FFT of rx_data_2
+    rx_fft = np.array(fft.fft2(rx_s_to_p_out))
+
+    # 4 channel parallel to serial
+    rx_fft_p_to_s = np.array(rx_fft).flatten()
+
+    # Demodulate the received signal
+    rx_bit = psk.demodulate(rx_fft_p_to_s)
+
+    return rx_bit

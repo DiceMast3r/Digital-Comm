@@ -72,7 +72,7 @@ def plot_constellation(psk):
 
 # Parameters
 M = 4  # QPSK modulation
-Nsym = 4 * (1000)  # * Change number in parentheses *
+Nsym = 4 * (10)  # * Change number in parentheses *
 Nbit = Nsym * 2
 f_1 = 5000  # 1st Carrier frequency (Hz)
 fs = f_1 * 10  # Sampling frequency (Hz)
@@ -95,13 +95,20 @@ print("Data shape = ", data.shape)
 
 # QPSK modulation
 psk = komm.PSKModulation(M, phase_offset=np.pi / 4)
-qpsk_symb = psk.modulate(data)
+symb = psk.modulate(data)
 # print("QPSK symbols = ", qpsk_symb.round(3))
-print("QPSK symbols shape = ", qpsk_symb.shape)
+print("QPSK symbols shape = ", symb.shape)
+plt.figure(figsize=(10, 5))
+plt.scatter(symb.real, symb.imag, color="red")
+plt.title("QPSK Constellation (4 subcarriers)")
+plt.xlabel("I")
+plt.ylabel("Q")
+plt.grid(True)
+plt.show()
 
 
 # Serial to 4 parallel output
-s_to_p_out = np.reshape(qpsk_symb, (4, Nbit // 8))
+s_to_p_out = np.reshape(symb, (4, Nbit // 8))
 # print("Data s_p = ", s_to_p_out.round(3))
 print("Data s_p shape = ", s_to_p_out.shape)
 
@@ -126,7 +133,7 @@ for i in range(4):
     sig.append(SymbolToWave(sc[i], f_sc[i], t_symbol))
 
 sig = np.array(sig)
-t_total = np.linspace(0, len(qpsk_symb) * T, len(sig[0]), endpoint=False)
+t_total = np.linspace(0, len(symb) * T, len(sig[0]), endpoint=False)
 
 
 sig_sum = np.sum(sig, axis=0)
@@ -171,7 +178,7 @@ plt.grid(True)
 plt.show()
 
 # Create a AWGN channel
-awgn = komm.AWGNChannel(snr=7, signal_power="measured")
+awgn = komm.AWGNChannel(snr=10, signal_power="measured")
 rx_signal = awgn(ifft_out)
 np.round(rx_signal, 6)  # Add AWGN noise to the data
 
@@ -185,6 +192,17 @@ rx_fft = np.array(fft.fft2(rx_s_to_p_out))
 # 4 channel parallel to serial
 rx_fft_p_to_s = np.array(rx_fft).flatten()
 print("RX FFT p_s shape = ", rx_fft_p_to_s.shape)
+
+plt.figure(figsize=(10, 5))
+plt.scatter(rx_fft_p_to_s.real, rx_fft_p_to_s.imag, color='blue')
+plt.scatter(symb.real, symb.imag, color="red")
+plt.title("Received QPSK Constellation (4 subcarriers)")
+plt.xlabel("I")
+plt.ylabel("Q")
+plt.grid(True)
+plt.show()
+
+
 
 # Demodulate the received signal
 rx_bit = psk.demodulate(rx_fft_p_to_s)

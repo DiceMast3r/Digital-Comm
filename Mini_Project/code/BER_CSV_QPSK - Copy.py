@@ -5,6 +5,8 @@ import scipy.fft as fft
 import time
 import csv
 import os
+from Module_SC import main_BPSK
+
 
 def BERCurve_QPSK(snr_in):
     def ComputeBER(data, rx_data, Nbit):
@@ -13,46 +15,31 @@ def BERCurve_QPSK(snr_in):
         return ber
 
     # Parameters
-    M = 4  # QPSK modulation
-    Nsymb = 100000 # Number of symbols
-    Nbit = Nsymb * 2 
-    
+    M = 2  # PSK modulation
+    Nsymb = 1000000  # Number of symbols
+    Nbit = Nsymb * 1
+
     np.random.seed(6)
     data = np.random.randint(0, 2, Nbit)
 
-    # QPSK modulation
-    psk = komm.PSKModulation(M, phase_offset=np.pi/4)
-    qpsk_symb = psk.modulate(data)
+    # split even and odd bits
+    data_I = data[::2]
+    data_Q = data[1::2]
 
-    # Serial to 4 parallel output
-    s_to_p_out = np.reshape(qpsk_symb, (4, Nbit // 8))
-    #print("Data 2 shape = ", s_to_p_out.shape)
-
-    ifft_data = np.array(fft.ifft2(s_to_p_out)) # IFFT of s_to_p_out
-
-    ifft_out = np.array(ifft_data).flatten()
-    
-    # Create a AWGN channel
-    awgn = komm.AWGNChannel(snr=snr_in, signal_power='measured') 
-    rx_signal = awgn(ifft_out); np.round(rx_signal, 6) # Add AWGN noise to the data
-
-    # Serial to 4 parallel output
-    rx_s_to_p_out = np.reshape(rx_signal, (4, Nbit // 8))
-
-    # FFT of rx_data_2
-    rx_fft = np.array(fft.fft2(rx_s_to_p_out)) 
-
-    # 4 channel parallel to serial
-    rx_fft_p_to_s = np.array(rx_fft).flatten()
-
-    # Demodulate the received signal
-    rx_bit = psk.demodulate(rx_fft_p_to_s)
+    rx_bit_I = main_BPSK(data_I, snr_in)
+    rx_bit_Q = main_BPSK(data_Q, snr_in)
+    # Combine the rx_bit_I and rx_bit_Q to form the received data
+    rx_bit = np.zeros(Nbit, dtype=int)
+    rx_bit[::2] = rx_bit_I
+    rx_bit[1::2] = rx_bit_Q
     return ComputeBER(data, rx_bit, Nbit)
-    
+
 
 def main():
     # Define the desired directory path
-    save_directory = "F:/Digital Comm/Mini_Project/csv"  # Change this to your desired directory
+    save_directory = (
+        "F:/Digital Comm/Mini_Project/csv"  # Change this to your desired directory
+    )
     file_name = "ber_values_qpsk.csv"
     file_path = os.path.join(save_directory, file_name)
 
@@ -71,11 +58,12 @@ def main():
     print("(QPSK) Program execution time: {0:.3f} seconds".format(elapsed_time))
 
     # Save BER values to a CSV file
-    with open(file_path, 'w', newline='') as csvfile:
+    with open(file_path, "w", newline="") as csvfile:
         csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(['SNR (dB)', 'BER'])
+        csvwriter.writerow(["SNR (dB)", "BER"])
         for snr_val, ber_val in zip(snr, ber_qpsk):
             csvwriter.writerow([snr_val, ber_val])
-            
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     main()

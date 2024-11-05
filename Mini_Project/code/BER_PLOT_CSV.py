@@ -5,9 +5,11 @@ import pandas as pd
 qpsk = pd.read_csv("F:/Digital Comm/Mini_Project/csv/ber_values_qpsk.csv")
 _8psk = pd.read_csv("F:/Digital Comm/Mini_Project/csv/ber_values_8psk.csv")
 _16psk = pd.read_csv("F:/Digital Comm/Mini_Project/csv/ber_values_16psk.csv")
+bpsk = pd.read_csv("F:/Digital Comm/Mini_Project/csv/ber_values_bpsk.csv")
 
 # Plot the BER values
 plt.figure(figsize=(10, 6))
+#plt.semilogy(bpsk['SNR (dB)'], bpsk['BER'], label='2 Subcarrier (BPSK)')
 plt.semilogy(qpsk['SNR (dB)'], qpsk['BER'], label='4 Subcarriers (QPSK)')
 plt.semilogy(_8psk['SNR (dB)'], _8psk['BER'], label='8 Subcarriers (8PSK)')
 plt.semilogy(_16psk['SNR (dB)'], _16psk['BER'], label='16 Subcarriers (16PSK)')
